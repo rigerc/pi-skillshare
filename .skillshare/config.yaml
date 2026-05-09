@@ -12,8 +12,5 @@ targets:
   - name: opencode
     skills:
       mode: copy
-  - name: pi
-    skills:
-      mode: copy
 audit:
   block_threshold: CRITICAL

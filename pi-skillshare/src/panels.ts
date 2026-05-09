@@ -788,8 +788,7 @@ export class SettingsPanel {
 				currentIndex: this.config.installMode === "project" ? 1 : 0,
 			},
 			{
-			{
-				id: "operationScope",
+			id: "operationScope",
 				label: "Check/update scope",
 				detail: "Scope for check and update commands",
 				values: ["Global", "Project"],
