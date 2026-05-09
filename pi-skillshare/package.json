@@ -1,18 +1,27 @@
 {
   "name": "pi-skillshare",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Search, install, and manage skillshare AI agent skills from within Pi",
-  "keywords": ["pi-package"],
+  "keywords": [
+    "pi-package"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rigerc/pi-skillshare.git",
     "directory": "pi-skillshare"
   },
-  "files": ["src/", "CHANGELOG.md", "cliff.toml", "README.md"],
+  "files": [
+    "src/",
+    "CHANGELOG.md",
+    "cliff.toml",
+    "README.md"
+  ],
   "license": "MIT",
   "type": "module",
   "pi": {
-    "extensions": ["./src"]
+    "extensions": [
+      "./src"
+    ]
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
