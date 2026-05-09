@@ -5,7 +5,7 @@
   "keywords": ["pi-package"],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/earendil-works/pi-extensions.git",
+    "url": "git+https://github.com/rigerc/pi-skillshare.git",
     "directory": "pi-skillshare"
   },
   "files": ["src/", "CHANGELOG.md", "cliff.toml", "README.md"],
