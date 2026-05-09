@@ -789,20 +789,21 @@ export class SettingsPanel {
 			},
 			{
 			id: "operationScope",
-				label: "Check/update scope",
-				detail: "Scope for check and update commands",
-				values: ["Global", "Project"],
-				currentIndex: this.config.operationScope === "project" ? 1 : 0,
-			},
-				id: "searchLimit",
-				label: "Search result limit",
-				detail: "Max results per search",
-				values: ["10", "20", "30", "50"],
-				currentIndex: (() => {
-					const idx = [10, 20, 30, 50].indexOf(this.config.searchLimit);
-					return idx >= 0 ? idx : 1; // default to 20
-				})(),
-			},
+			label: "Check/update scope",
+			detail: "Scope for check and update commands",
+			values: ["Global", "Project"],
+			currentIndex: this.config.operationScope === "project" ? 1 : 0,
+		},
+		{
+			id: "searchLimit",
+			label: "Search result limit",
+			detail: "Max results per search",
+			values: ["10", "20", "30", "50"],
+			currentIndex: (() => {
+				const idx = [10, 20, 30, 50].indexOf(this.config.searchLimit);
+				return idx >= 0 ? idx : 1; // default to 20
+			})(),
+		},
 		];
 	}
 
