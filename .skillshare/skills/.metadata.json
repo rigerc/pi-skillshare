@@ -101,18 +101,6 @@
         "triage-labels.md": "sha256:4f53c9b40ce2651e3611aa090eaedbd6dbc9b71ef8c5f7e65eac0d8263190d0d"
       }
     },
-    "skill": {
-      "source": "github.com/aleqsio/react-native-worktree/skill",
-      "type": "github-subdir",
-      "installed_at": "2026-05-09T17:28:10.621130048+02:00",
-      "repo_url": "https://github.com/aleqsio/react-native-worktree.git",
-      "subdir": "skill",
-      "version": "b867f4d",
-      "tree_hash": "5b299e5ff585573980f7058fdadad4b5b4876609",
-      "file_hashes": {
-        "SKILL.md": "sha256:c582ab9f3e4903168d4b6e46c7c1c787bda1b6700dcd01dd76cded00a1e97c29"
-      }
-    },
     "td-task-management": {
       "source": "github.com/marcus/td/td-task-management",
       "type": "github-subdir",
