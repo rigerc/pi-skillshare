@@ -10,7 +10,7 @@
 ## Install
 
 ```bash
-pi install pi-skillshare
+pi install npm:@rigerc/pi-skillshare
 ```
 
 To develop locally, clone this repo, then:
