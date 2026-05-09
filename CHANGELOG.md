@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/rigerc/pi-skillshare/compare/pi-skillshare-v0.1.3...pi-skillshare-v0.1.4) (2026-05-09)
+
+
+### Features
+
+* **search:** add star sorting to SearchPanel with relevance default ([73bf595](https://github.com/rigerc/pi-skillshare/commit/73bf595746540ea7f31970ac08f78bdc5b050b91))
+
 ## [0.1.3](https://github.com/rigerc/pi-skillshare/compare/pi-skillshare-v0.1.2...pi-skillshare-v0.1.3) (2026-05-09)
 
 
