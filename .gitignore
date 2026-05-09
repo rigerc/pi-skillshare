@@ -8,10 +8,15 @@
 .mcp.json
 mcp.json
 .agentsmesh/mcp.json
+node_modules
+tests
 
 # docs, contex
 docs/
 
+.projscanrc.json
+.projscan-cache
+.projscan-memory
 # agents
 agentsmesh.local.yaml
 .agentsmeshcache
