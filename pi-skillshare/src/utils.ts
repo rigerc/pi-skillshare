@@ -96,7 +96,7 @@ export function getSkillshareVersion(): string {
 	}
 }
 
-/** Get project root (where .skillshare/ lives) from cwd. */
+/** Get project root (where .skillshare/ lives) by walking up at most 20 levels. */
 export function getProjectRoot(cwd: string): string | null {
 	let dir = cwd;
 	for (let i = 0; i < 20; i++) {
@@ -186,6 +186,18 @@ function parseSkillshareError(stderr: string, stdout: string): string {
 	return lines.length > 0 ? lines.slice(0, 5).join("\n") : "Unknown error";
 }
 
+/** Convert exec error to a user-friendly Error using parseSkillshareError. */
+function toSkillshareError(err: unknown): Error {
+	if (err && typeof err === "object" && "stderr" in err) {
+		const e = err as { stderr?: string; stdout?: string };
+		const stderr = typeof e.stderr === "string" ? e.stderr : "";
+		const stdout = typeof e.stdout === "string" ? e.stdout : "";
+		return new Error(parseSkillshareError(stderr, stdout));
+	}
+	const message = err instanceof Error ? err.message : String(err);
+	return new Error(parseSkillshareError(message, ""));
+}
+
 function rethrowExecError(err: unknown): never {
 	if (err && typeof err === "object" && "stderr" in err) {
 		const e = err as { stderr?: string; stdout?: string };
@@ -226,24 +238,6 @@ function buildSearchArgs(
 }
 
 /** Sync search (no spinner). */
-export function searchSkillsSync(
-	query: string,
-	limit: number,
-	hubMode: SkillshareConfig["hubMode"] = "github",
-): SkillSearchResult[] {
-	try {
-		const stdout = execFileSync("skillshare", buildSearchArgs(query, limit, hubMode), {
-			encoding: "utf-8",
-			timeout: 30_000,
-			maxBuffer: 10 * 1024 * 1024,
-			stdio: ["ignore", "pipe", "pipe"],
-		});
-		return parseSearchOutput(stdout);
-	} catch (err: unknown) {
-		rethrowExecError(err);
-	}
-}
-
 /** Async search (enables spinner in command handler). */
 export async function searchSkillsAsync(
 	query: string,
@@ -368,12 +362,7 @@ export function syncSkills(projectMode: boolean): string {
 			maxBuffer: 10 * 1024 * 1024,
 		}).trim();
 	} catch (err: unknown) {
-		if (err && typeof err === "object" && "stderr" in err) {
-			throw new Error(
-				parseSkillshareError((err as any).stderr ?? "", (err as any).stdout ?? ""),
-			);
-		}
-		throw new Error(String(err));
+		throw toSkillshareError(err);
 	}
 }
 
@@ -387,12 +376,7 @@ export function updateSkills(projectMode: boolean): string {
 			maxBuffer: 10 * 1024 * 1024,
 		}).trim();
 	} catch (err: unknown) {
-		if (err && typeof err === "object" && "stderr" in err) {
-			throw new Error(
-				parseSkillshareError((err as any).stderr ?? "", (err as any).stdout ?? ""),
-			);
-		}
-		throw new Error(String(err));
+		throw toSkillshareError(err);
 	}
 }
 
@@ -406,12 +390,7 @@ export function uninstallSkill(name: string, projectMode: boolean): string {
 			maxBuffer: 10 * 1024 * 1024,
 		}).trim();
 	} catch (err: unknown) {
-		if (err && typeof err === "object" && "stderr" in err) {
-			throw new Error(
-				parseSkillshareError((err as any).stderr ?? "", (err as any).stdout ?? ""),
-			);
-		}
-		throw new Error(String(err));
+		throw toSkillshareError(err);
 	}
 }
 
@@ -427,12 +406,7 @@ export function checkSkills(projectMode: boolean): CheckOutput {
 		if (!stdout) return { tracked_repos: [], skills: [] };
 		return JSON.parse(stdout) as CheckOutput;
 	} catch (err: unknown) {
-		if (err && typeof err === "object" && "stderr" in err) {
-			throw new Error(
-				parseSkillshareError((err as any).stderr ?? "", (err as any).stdout ?? ""),
-			);
-		}
-		throw new Error(String(err));
+		throw toSkillshareError(err);
 	}
 }
 
@@ -444,12 +418,7 @@ export function runDoctor(): string {
 			maxBuffer: 10 * 1024 * 1024,
 		}).trim();
 	} catch (err: unknown) {
-		if (err && typeof err === "object" && "stderr" in err) {
-			throw new Error(
-				parseSkillshareError((err as any).stderr ?? "", (err as any).stdout ?? ""),
-			);
-		}
-		throw new Error(String(err));
+		throw toSkillshareError(err);
 	}
 }
 
@@ -512,17 +481,4 @@ export function formatStars(stars: number): string {
 			? `${(stars / 1000).toFixed(1)}k`
 			: String(stars)
 		: "";
-}
-
-export function formatResult(r: SkillSearchResult, index: number): string {
-	const starStr = r.Stars > 0 ? ` ★${formatStars(r.Stars)}` : "";
-	const desc = r.Description ? `  ${r.Description}` : "";
-	const tags = r.Tags?.length
-		? `  tags: ${r.Tags.map((t) => `#${t}`).join(" ")}`
-		: "";
-	const risk =
-		r.RiskLabel
-			? `  risk: [${r.RiskLabel}]${r.RiskScore != null ? ` (${r.RiskScore})` : ""}`
-			: "";
-	return `${index + 1}. ${r.Name}${starStr}\n   source: ${r.Source}${desc ? `\n${desc}` : ""}${tags ? `\n${tags}` : ""}${risk ? `\n${risk}` : ""}`;
 }
