@@ -453,13 +453,31 @@ export function runDoctor(): string {
 	}
 }
 
+/** Track the currently running UI process so we can kill it before spawning a new one. */
+let uiProcess: ReturnType<typeof spawn> | null = null;
+
 export function openUI(cwd: string): { url: string } {
-	const child = spawn("skillshare", ["ui", "--port", "19420"], {
+	// Kill previous instance if still running
+	if (uiProcess && !uiProcess.killed) {
+		try {
+			uiProcess.kill();
+		} catch {
+			/* process already dead */
+		}
+	}
+
+	uiProcess = spawn("skillshare", ["ui", "--port", "19420"], {
 		cwd,
 		detached: true,
 		stdio: "ignore",
 	});
-	child.unref();
+	uiProcess.unref();
+
+	// Track exit to clean up reference
+	uiProcess.on("exit", () => {
+		uiProcess = null;
+	});
+
 	return { url: "http://127.0.0.1:19420" };
 }
 
