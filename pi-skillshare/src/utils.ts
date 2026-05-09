@@ -3,7 +3,7 @@
  * CLI wrappers, error parsing, spinner, etc.
  */
 
-import { execSync, exec, spawn } from "node:child_process";
+import { execFileSync, execFile, spawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
@@ -77,7 +77,7 @@ export interface CheckOutput {
 /** Check if the `skillshare` CLI is available on PATH. */
 export function isSkillshareAvailable(): boolean {
 	try {
-		execSync("skillshare --version", { stdio: "ignore", timeout: 5000 });
+		execFileSync("skillshare", ["--version"], { stdio: "ignore", timeout: 5000 });
 		return true;
 	} catch {
 		return false;
@@ -87,7 +87,7 @@ export function isSkillshareAvailable(): boolean {
 /** Get the skillshare CLI version. */
 export function getSkillshareVersion(): string {
 	try {
-		return execSync("skillshare --version", {
+		return execFileSync("skillshare", ["--version"], {
 			encoding: "utf-8",
 			timeout: 5000,
 		}).trim();
@@ -212,18 +212,17 @@ function parseSearchOutput(stdout: string): SkillSearchResult[] {
 // Search
 // ---------------------------------------------------------------------------
 
-function buildSearchCmd(
+function buildSearchArgs(
 	query: string,
 	limit: number,
 	hubMode: SkillshareConfig["hubMode"],
-): string {
-	const safeQuery = query.replace(/"/g, '\\"');
-	const safeLimit = Math.max(1, Math.min(100, limit));
-	let cmd = `skillshare search "${safeQuery}" --json --limit ${safeLimit}`;
+): string[] {
+	const safeLimit = String(Math.max(1, Math.min(100, limit)));
+	const args = ["search", query, "--json", "--limit", safeLimit];
 	if (hubMode === "community-hub") {
-		cmd += " --hub";
+		args.push("--hub");
 	}
-	return cmd;
+	return args;
 }
 
 /** Sync search (no spinner). */
@@ -233,7 +232,7 @@ export function searchSkillsSync(
 	hubMode: SkillshareConfig["hubMode"] = "github",
 ): SkillSearchResult[] {
 	try {
-		const stdout = execSync(buildSearchCmd(query, limit, hubMode), {
+		const stdout = execFileSync("skillshare", buildSearchArgs(query, limit, hubMode), {
 			encoding: "utf-8",
 			timeout: 30_000,
 			maxBuffer: 10 * 1024 * 1024,
@@ -252,8 +251,9 @@ export async function searchSkillsAsync(
 	hubMode: SkillshareConfig["hubMode"],
 ): Promise<SkillSearchResult[]> {
 	return new Promise((resolve, reject) => {
-		exec(
-			buildSearchCmd(query, limit, hubMode),
+		execFile(
+			"skillshare",
+			buildSearchArgs(query, limit, hubMode),
 			{
 				encoding: "utf-8",
 				timeout: 30_000,
@@ -285,16 +285,22 @@ export async function searchSkillsAsync(
 // ---------------------------------------------------------------------------
 
 export function installSkill(source: string, projectMode: boolean): string {
-	const safeSource = source.replace(/"/g, '\\"');
-	const flag = projectMode ? " -p" : " -g";
-	const cmd = `skillshare install "${safeSource}"${flag} -y`;
-	try {
-		return execSync(cmd, {
+	const args = ["install", source];
+	if (projectMode) args.push("-p");
+	else args.push("-g");
+	args.push("-y");
+
+	const tryExec = (extraArgs: string[] = []): string => {
+		return execFileSync("skillshare", [...args, ...extraArgs], {
 			encoding: "utf-8",
 			timeout: 120_000,
 			maxBuffer: 10 * 1024 * 1024,
 			stdio: ["ignore", "pipe", "pipe"],
 		}).trim();
+	};
+
+	try {
+		return tryExec();
 	} catch (err: unknown) {
 		if (err && typeof err === "object" && "stderr" in err) {
 			const e = err as { stderr?: string; stdout?: string };
@@ -308,12 +314,7 @@ export function installSkill(source: string, projectMode: boolean): string {
 			}
 			if (combined.includes("blocked") || combined.includes("audit")) {
 				try {
-					return execSync(`skillshare install "${safeSource}"${flag} -y --force`, {
-						encoding: "utf-8",
-						timeout: 120_000,
-						maxBuffer: 10 * 1024 * 1024,
-						stdio: ["ignore", "pipe", "pipe"],
-					}).trim();
+					return tryExec(["--force"]);
 				} catch {
 					/* fall through */
 				}
@@ -358,9 +359,10 @@ export function listInstalledSkills(projectMode: boolean): InstalledSkill[] {
 // ---------------------------------------------------------------------------
 
 export function syncSkills(projectMode: boolean): string {
-	const flag = projectMode ? " -p" : "";
+	const args = ["sync"];
+	if (projectMode) args.push("-p");
 	try {
-		return execSync(`skillshare sync${flag}`, {
+		return execFileSync("skillshare", args, {
 			encoding: "utf-8",
 			timeout: 60_000,
 			maxBuffer: 10 * 1024 * 1024,
@@ -376,9 +378,10 @@ export function syncSkills(projectMode: boolean): string {
 }
 
 export function updateSkills(projectMode: boolean): string {
-	const flag = projectMode ? " -p" : "";
+	const args = ["update"];
+	if (projectMode) args.push("-p");
 	try {
-		return execSync(`skillshare update${flag}`, {
+		return execFileSync("skillshare", args, {
 			encoding: "utf-8",
 			timeout: 120_000,
 			maxBuffer: 10 * 1024 * 1024,
@@ -394,10 +397,10 @@ export function updateSkills(projectMode: boolean): string {
 }
 
 export function uninstallSkill(name: string, projectMode: boolean): string {
-	const safeName = name.replace(/"/g, '\\"');
-	const flag = projectMode ? " -p" : "";
+	const args = ["uninstall", name];
+	if (projectMode) args.push("-p");
 	try {
-		return execSync(`skillshare uninstall "${safeName}"${flag}`, {
+		return execFileSync("skillshare", args, {
 			encoding: "utf-8",
 			timeout: 30_000,
 			maxBuffer: 10 * 1024 * 1024,
@@ -413,9 +416,10 @@ export function uninstallSkill(name: string, projectMode: boolean): string {
 }
 
 export function checkSkills(projectMode: boolean): CheckOutput {
-	const flag = projectMode ? " -p" : "";
+	const args = ["check", "--json"];
+	if (projectMode) args.push("-p");
 	try {
-		const stdout = execSync("skillshare check --json" + flag, {
+		const stdout = execFileSync("skillshare", args, {
 			encoding: "utf-8",
 			timeout: 30_000,
 			maxBuffer: 10 * 1024 * 1024,
@@ -434,7 +438,7 @@ export function checkSkills(projectMode: boolean): CheckOutput {
 
 export function runDoctor(): string {
 	try {
-		return execSync("skillshare doctor", {
+		return execFileSync("skillshare", ["doctor"], {
 			encoding: "utf-8",
 			timeout: 30_000,
 			maxBuffer: 10 * 1024 * 1024,
