@@ -11,7 +11,3 @@
 #   - matcher: Edit|Write
 #     type: command
 #     command: npm test --passWithNoTests
-SessionStart:
-  - matcher: startup
-    type: command
-    command: skillshare check && agentsmesh generate
