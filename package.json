@@ -1,6 +1,6 @@
 {
   "name": "pi-skillshare",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Search, install, and manage skillshare AI agent skills from within Pi",
   "keywords": [
     "pi-package"
