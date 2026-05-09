@@ -9,109 +9,105 @@
  *   - SettingsPanel  – extension configuration
  */
 
-import type { Theme } from "@earendil-works/pi-coding-agent";
-import { matchesKey, Key, truncateToWidth } from "@earendil-works/pi-tui";
-import type {
-	SkillSearchResult,
-	InstalledSkill,
-	SkillshareConfig,
-} from "./utils";
+import type { Theme } from '@earendil-works/pi-coding-agent';
+import { matchesKey, Key, truncateToWidth } from '@earendil-works/pi-tui';
+import type { SkillSearchResult, InstalledSkill, SkillshareConfig } from './utils';
 import {
-	searchSkillsAsync,
-	installSkill,
-	listInstalledSkills,
-	syncSkills,
-	updateSkills,
-	uninstallSkill,
-	runDoctor,
-	startSpinner,
-	formatStars,
-} from "./utils";
+  searchSkillsAsync,
+  installSkill,
+  listInstalledSkills,
+  syncSkills,
+  updateSkills,
+  uninstallSkill,
+  runDoctor,
+  startSpinner,
+  formatStars,
+} from './utils';
 
 // ---------------------------------------------------------------------------
 // Tab bar
 // ---------------------------------------------------------------------------
 
-export type TabId = "search" | "installed" | "status" | "settings";
+export type TabId = 'search' | 'installed' | 'status' | 'settings';
 
 export interface TabDef {
-	id: TabId;
-	label: string;
+  id: TabId;
+  label: string;
 }
 
 /** Three-tab layout used by /skillshare (search + installed + status). */
 export const SKILLSHARE_TABS: TabDef[] = [
-	{ id: "search", label: "Search" },
-	{ id: "installed", label: "Installed" },
-	{ id: "status", label: "Status" },
+  { id: 'search', label: 'Search' },
+  { id: 'installed', label: 'Installed' },
+  { id: 'status', label: 'Status' },
 ];
 
 export class TabBar {
-	private cursor = 0;
-	private tabs: TabDef[];
-	private onTabChange: (tab: TabId) => void;
-	private theme: Theme;
-	private cachedWidth?: number;
-	private cachedLines?: string[];
+  private cursor = 0;
+  private tabs: TabDef[];
+  private onTabChange: (tab: TabId) => void;
+  private theme: Theme;
+  private cachedWidth?: number;
+  private cachedLines?: string[];
 
-	constructor(theme: Theme, tabs: TabDef[], onTabChange: (tab: TabId) => void) {
-		this.theme = theme;
-		this.tabs = tabs;
-		this.onTabChange = onTabChange;
-	}
+  constructor(theme: Theme, tabs: TabDef[], onTabChange: (tab: TabId) => void) {
+    this.theme = theme;
+    this.tabs = tabs;
+    this.onTabChange = onTabChange;
+  }
 
-	get activeTab(): TabId {
-		return this.tabs[this.cursor].id;
-	}
+  get activeTab(): TabId {
+    return this.tabs[this.cursor].id;
+  }
 
-	setActiveTab(id: TabId) {
-		const idx = this.tabs.findIndex((t) => t.id === id);
-		if (idx >= 0) this.cursor = idx;
-		this.cachedWidth = undefined;
-	}
+  setActiveTab(id: TabId) {
+    const idx = this.tabs.findIndex((t) => t.id === id);
+    if (idx >= 0) this.cursor = idx;
+    this.cachedWidth = undefined;
+  }
 
-	handleInput(data: string) {
-		if (matchesKey(data, Key.left) || matchesKey(data, Key.shift("tab"))) {
-			this.cursor = this.cursor === 0 ? this.tabs.length - 1 : this.cursor - 1;
-			this.cachedWidth = undefined;
-			this.onTabChange(this.activeTab);
-		} else if (matchesKey(data, Key.right) || matchesKey(data, Key.tab)) {
-			this.cursor = this.cursor === this.tabs.length - 1 ? 0 : this.cursor + 1;
-			this.cachedWidth = undefined;
-			this.onTabChange(this.activeTab);
-		}
-	}
+  handleInput(data: string) {
+    if (matchesKey(data, Key.left) || matchesKey(data, Key.shift('tab'))) {
+      this.cursor = this.cursor === 0 ? this.tabs.length - 1 : this.cursor - 1;
+      this.cachedWidth = undefined;
+      this.onTabChange(this.activeTab);
+    } else if (matchesKey(data, Key.right) || matchesKey(data, Key.tab)) {
+      this.cursor = this.cursor === this.tabs.length - 1 ? 0 : this.cursor + 1;
+      this.cachedWidth = undefined;
+      this.onTabChange(this.activeTab);
+    }
+  }
 
-	render(width: number): string[] {
-		if (this.cachedLines && this.cachedWidth === width) return this.cachedLines;
+  render(width: number): string[] {
+    if (this.cachedLines && this.cachedWidth === width) return this.cachedLines;
 
-		const t = this.theme;
-		const lines: string[] = [];
-		let bar = " ";
-		for (let i = 0; i < this.tabs.length; i++) {
-			const tab = this.tabs[i];
-			const active = i === this.cursor;
-			const sep = i > 0 ? t.fg("borderMuted", " │ ") : " ";
-			const label = active
-				? t.fg("accent", t.bold(` ${tab.label} `))
-				: t.fg("muted", ` ${tab.label} `);
-			bar += `${sep}${label}`;
-		}
-		lines.push(truncateToWidth(bar, width));
+    const t = this.theme;
+    const lines: string[] = [];
+    let bar = ' ';
+    for (let i = 0; i < this.tabs.length; i++) {
+      const tab = this.tabs[i];
+      const active = i === this.cursor;
+      const sep = i > 0 ? t.fg('borderMuted', ' │ ') : ' ';
+      const label = active
+        ? t.fg('accent', t.bold(` ${tab.label} `))
+        : t.fg('muted', ` ${tab.label} `);
+      bar += `${sep}${label}`;
+    }
+    lines.push(truncateToWidth(bar, width));
 
-		// Divider line
-		const divider = t.fg("borderMuted", "─".repeat(width));
-		lines.push(divider);
+    // Divider line
+    const divider = t.fg('borderMuted', '─'.repeat(width));
+    lines.push(divider);
 
-		this.cachedWidth = width;
-		this.cachedLines = lines;
-		return lines;
-	}
+    this.cachedWidth = width;
+    this.cachedLines = lines;
+    return lines;
+  }
 
-	invalidate() {
-		this.cachedWidth = undefined;
-		this.cachedLines = undefined;
-	}
+  invalidate() {
+    this.cachedWidth = undefined;
+    this.cachedLines = undefined;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -119,312 +115,315 @@ export class TabBar {
 // ---------------------------------------------------------------------------
 
 export interface SearchPanelCallbacks {
-	onNotify: (msg: string, type: "info" | "success" | "error") => void;
-	onSetStatus: (msg: string) => void;
-	onClearStatus: () => void;
-	onClose: () => void;
-	onRequestRender: () => void;
+  onNotify: (msg: string, type: 'info' | 'success' | 'error') => void;
+  onSetStatus: (msg: string) => void;
+  onClearStatus: () => void;
+  onClose: () => void;
+  onRequestRender: () => void;
 }
 
 export class SearchPanel {
-	private query: string;
-	private results: SkillSearchResult[] = [];
-	private checked: boolean[] = [];
-	private cursor = 0;
-	private config: SkillshareConfig;
-	private callbacks: SearchPanelCallbacks;
-	private theme: Theme;
-	private searching = false;
-	private installedNames: Set<string>;
-	private cachedWidth?: number;
-	private cachedLines?: string[];
+  private query: string;
+  private results: SkillSearchResult[] = [];
+  private checked: boolean[] = [];
+  private cursor = 0;
+  private config: SkillshareConfig;
+  private callbacks: SearchPanelCallbacks;
+  private theme: Theme;
+  private searching = false;
+  private installedNames: Set<string>;
+  private sortOrder: 'relevance' | 'desc' | 'asc' = 'relevance';
+  private originalResults: SkillSearchResult[] = [];
+  private cachedWidth?: number;
+  private cachedLines?: string[];
 
-	constructor(
-		config: SkillshareConfig,
-		theme: Theme,
-		callbacks: SearchPanelCallbacks,
-		initialQuery: string,
-	) {
-		this.config = config;
-		this.theme = theme;
-		this.callbacks = callbacks;
-		this.query = initialQuery;
-		this.installedNames = new Set(
-			listInstalledSkills(config.installMode === "project").map((s) => s.name),
-		);
+  constructor(
+    config: SkillshareConfig,
+    theme: Theme,
+    callbacks: SearchPanelCallbacks,
+    initialQuery: string,
+  ) {
+    this.config = config;
+    this.theme = theme;
+    this.callbacks = callbacks;
+    this.query = initialQuery;
+    this.installedNames = new Set(
+      listInstalledSkills(config.installMode === 'project').map((s) => s.name),
+    );
 
-		// Auto-search if query provided
-		if (this.query) {
-			this.runSearch();
-		}
-	}
+    // Auto-search if query provided
+    if (this.query) {
+      this.runSearch();
+    }
+  }
 
-	handleInput(data: string) {
-		if (this.searching) return;
+  handleInput(data: string) {
+    if (this.searching) return;
 
-		if (matchesKey(data, Key.enter) && this.results.length > 0) {
-			this.installSelected();
-			return;
-		}
+    if (matchesKey(data, Key.enter) && this.results.length > 0) {
+      this.installSelected();
+      return;
+    }
 
-		if (matchesKey(data, Key.space) && this.results.length > 0) {
-			if (this.cursor < this.checked.length) {
-				this.checked[this.cursor] = !this.checked[this.cursor];
-				this.cachedWidth = undefined;
-			}
-			return;
-		}
+    if (matchesKey(data, Key.space) && this.results.length > 0) {
+      if (this.cursor < this.checked.length) {
+        this.checked[this.cursor] = !this.checked[this.cursor];
+        this.cachedWidth = undefined;
+      }
+      return;
+    }
 
-		if (matchesKey(data, Key.up) || matchesKey(data, "k")) {
-			if (this.results.length > 0) {
-				this.cursor = Math.max(0, this.cursor - 1);
-				this.cachedWidth = undefined;
-			}
-			return;
-		}
+    if (matchesKey(data, Key.up) || matchesKey(data, 'k')) {
+      if (this.results.length > 0) {
+        this.cursor = Math.max(0, this.cursor - 1);
+        this.cachedWidth = undefined;
+      }
+      return;
+    }
 
-		if (matchesKey(data, Key.down) || matchesKey(data, "j")) {
-			if (this.results.length > 0) {
-				this.cursor = Math.min(this.results.length - 1, this.cursor + 1);
-				this.cachedWidth = undefined;
-			}
-			return;
-		}
+    if (matchesKey(data, Key.down) || matchesKey(data, 'j')) {
+      if (this.results.length > 0) {
+        this.cursor = Math.min(this.results.length - 1, this.cursor + 1);
+        this.cachedWidth = undefined;
+      }
+      return;
+    }
 
-		if (matchesKey(data, "s") && !this.query) {
-			// 's' to search when idle — handled by main panel
-		}
-	}
+    if (matchesKey(data, 's') && !this.query) {
+      // 's' to search when idle — handled by main panel
+    }
 
-	async runSearch(newQuery?: string) {
-		if (newQuery !== undefined) this.query = newQuery;
-		if (!this.query) return;
+    if (matchesKey(data, 'o') && this.results.length > 0) {
+      // Cycle: relevance → desc → asc → relevance
+      if (this.sortOrder === 'relevance') {
+        this.sortOrder = 'desc';
+        this.results = [...this.originalResults];
+        this.results.sort((a, b) => b.Stars - a.Stars);
+      } else if (this.sortOrder === 'desc') {
+        this.sortOrder = 'asc';
+        this.results.sort((a, b) => a.Stars - b.Stars);
+      } else {
+        this.sortOrder = 'relevance';
+        this.results = [...this.originalResults];
+      }
+      this.cursor = 0;
+      this.cachedWidth = undefined;
+      return;
+    }
+  }
 
-		this.searching = true;
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
+  async runSearch(newQuery?: string) {
+    if (newQuery !== undefined) this.query = newQuery;
+    if (!this.query) return;
 
-		const stopSpinner = startSpinner(
-			this.callbacks.onSetStatus,
-			`searching "${this.query}"...`,
-		);
+    this.searching = true;
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
 
-		try {
-			this.results = await searchSkillsAsync(
-				this.query,
-				this.config.searchLimit,
-				this.config.hubMode,
-			);
-			this.checked = new Array(this.results.length).fill(false);
-			this.cursor = 0;
-		} catch (err: unknown) {
-			this.results = [];
-			this.checked = [];
-			this.callbacks.onNotify(
-				err instanceof Error ? err.message : String(err),
-				"error",
-			);
-		} finally {
-			stopSpinner();
-			this.callbacks.onClearStatus();
-			this.searching = false;
-			this.cachedWidth = undefined;
-			this.callbacks.onRequestRender();
-		}
-	}
+    const stopSpinner = startSpinner(this.callbacks.onSetStatus, `searching "${this.query}"...`);
 
-	private async installSelected() {
-		const selected: number[] = [];
-		for (let i = 0; i < this.checked.length; i++) {
-			if (this.checked[i]) selected.push(i);
-		}
-		if (selected.length === 0) {
-			this.callbacks.onNotify("No skills selected", "info");
-			return;
-		}
+    try {
+      this.results = await searchSkillsAsync(
+        this.query,
+        this.config.searchLimit,
+        this.config.hubMode,
+      );
+      // Keep original order from skillshare (relevance-based by default)
+      this.originalResults = [...this.results];
+      if (this.sortOrder !== 'relevance') {
+        this.results.sort((a, b) =>
+          this.sortOrder === 'desc' ? b.Stars - a.Stars : a.Stars - b.Stars,
+        );
+      }
+      this.checked = new Array(this.results.length).fill(false);
+      this.cursor = 0;
+    } catch (err: unknown) {
+      this.results = [];
+      this.checked = [];
+      this.callbacks.onNotify(err instanceof Error ? err.message : String(err), 'error');
+    } finally {
+      stopSpinner();
+      this.callbacks.onClearStatus();
+      this.searching = false;
+      this.cachedWidth = undefined;
+      this.callbacks.onRequestRender();
+    }
+  }
 
-		const projectMode = this.config.installMode === "project";
-		const modeLabel = projectMode ? "project" : "global";
+  private async installSelected() {
+    const selected: number[] = [];
+    for (let i = 0; i < this.checked.length; i++) {
+      if (this.checked[i]) selected.push(i);
+    }
+    if (selected.length === 0) {
+      this.callbacks.onNotify('No skills selected', 'info');
+      return;
+    }
 
-		// We need to close the panel to show confirm dialogs
-		// Instead, we'll install sequentially with status feedback
-		this.callbacks.onSetStatus(`Installing ${selected.length} skill(s) to ${modeLabel}...`);
+    const projectMode = this.config.installMode === 'project';
+    const modeLabel = projectMode ? 'project' : 'global';
 
-		const installed: string[] = [];
-		const failed: Array<{ name: string; error: string }> = [];
-		let lastRender = Date.now();
+    // We need to close the panel to show confirm dialogs
+    // Instead, we'll install sequentially with status feedback
+    this.callbacks.onSetStatus(`Installing ${selected.length} skill(s) to ${modeLabel}...`);
 
-		for (let i = 0; i < selected.length; i++) {
-			const skill = this.results[selected[i]];
-			this.callbacks.onSetStatus(
-				`Installing ${skill.Name} (${i + 1}/${selected.length})...`,
-			);
+    const installed: string[] = [];
+    const failed: Array<{ name: string; error: string }> = [];
+    let lastRender = Date.now();
 
-			// Throttle renders for performance
-			if (Date.now() - lastRender > 100) {
-				this.callbacks.onRequestRender();
-				lastRender = Date.now();
-			}
+    for (let i = 0; i < selected.length; i++) {
+      const skill = this.results[selected[i]];
+      this.callbacks.onSetStatus(`Installing ${skill.Name} (${i + 1}/${selected.length})...`);
 
-			try {
-				const output = installSkill(skill.Source, projectMode);
-				installed.push(skill.Name);
-				console.log(`Installed ${skill.Name}:\n${output}`);
-			} catch (err: unknown) {
-				const message = err instanceof Error ? err.message : String(err);
-				failed.push({ name: skill.Name, error: message });
-				console.error(`Failed to install ${skill.Name}: ${message}`);
-			}
-		}
+      // Throttle renders for performance
+      if (Date.now() - lastRender > 100) {
+        this.callbacks.onRequestRender();
+        lastRender = Date.now();
+      }
 
-		this.callbacks.onClearStatus();
+      try {
+        const output = installSkill(skill.Source, projectMode);
+        installed.push(skill.Name);
+        console.log(`Installed ${skill.Name}:\n${output}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
+        failed.push({ name: skill.Name, error: message });
+        console.error(`Failed to install ${skill.Name}: ${message}`);
+      }
+    }
 
-		// Update installed names
-		for (const name of installed) {
-			this.installedNames.add(name);
-		}
+    this.callbacks.onClearStatus();
 
-		// Report
-		if (installed.length > 0) {
-			this.callbacks.onNotify(
-				`✓ Installed: ${installed.join(", ")}`,
-				"success",
-			);
-			this.callbacks.onNotify(
-				"Run sync from the Status panel to distribute",
-				"info",
-			);
-		}
-		if (failed.length > 0) {
-			this.callbacks.onNotify(
-				`✗ Failed: ${failed.map((f) => `${f.name} (${f.error})`).join("; ")}`,
-				"error",
-			);
-		}
+    // Update installed names
+    for (const name of installed) {
+      this.installedNames.add(name);
+    }
 
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
-	}
+    // Report
+    if (installed.length > 0) {
+      this.callbacks.onNotify(`✓ Installed: ${installed.join(', ')}`, 'success');
+      this.callbacks.onNotify('Run sync from the Status panel to distribute', 'info');
+    }
+    if (failed.length > 0) {
+      this.callbacks.onNotify(
+        `✗ Failed: ${failed.map((f) => `${f.name} (${f.error})`).join('; ')}`,
+        'error',
+      );
+    }
 
-	render(width: number): string[] {
-		if (this.cachedLines && this.cachedWidth === width && !this.searching) {
-			return this.cachedLines;
-		}
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
+  }
 
-		const t = this.theme;
-		const lines: string[] = [];
+  render(width: number): string[] {
+    if (this.cachedLines && this.cachedWidth === width && !this.searching) {
+      return this.cachedLines;
+    }
 
-		// Query bar
-		const queryLine = `${t.fg("accent", "Search")}: ${this.query || t.fg("dim", "(no query — reopen with a keyword)")}`;
-		lines.push(queryLine);
-		lines.push("");
+    const t = this.theme;
+    const lines: string[] = [];
 
-		// Searching indicator
-		if (this.searching) {
-			lines.push(`  ${t.fg("muted", "Searching...")}`);
-			this.cachedLines = lines;
-			return lines;
-		}
+    // Query bar
+    const queryLine = `${t.fg('accent', 'Search')}: ${this.query || t.fg('dim', '(no query — reopen with a keyword)')}`;
+    lines.push(queryLine);
+    lines.push('');
 
-		// No results
-		if (this.results.length === 0) {
-			if (this.query) {
-				lines.push(`  ${t.fg("dim", `No results for "${this.query}"`)}`);
-				lines.push("");
-				lines.push(
-					`  ${t.fg("muted", "Try different keywords or change hub in /skillshare-settings")}`,
-				);
-			} else {
-				lines.push(`  ${t.fg("dim", "Run /skillshare <query> to search")}`);
-			}
-			lines.push("");
-			// Key hints
-			lines.push(`  ${t.fg("dim", "← → or Tab tabs  |  s  search  |  Esc close")}`);
-			this.cachedLines = lines;
-			return lines;
-		}
+    // Searching indicator
+    if (this.searching) {
+      lines.push(`  ${t.fg('muted', 'Searching...')}`);
+      this.cachedLines = lines;
+      return lines;
+    }
 
-		// Results header
-		const hubLabel =
-			this.config.hubMode === "community-hub"
-				? t.fg("muted", " [community hub]")
-				: "";
-		lines.push(
-			`  ${t.fg("muted", `${this.results.length} result(s)${hubLabel}`)}`,
-		);
-		lines.push("");
+    // No results
+    if (this.results.length === 0) {
+      if (this.query) {
+        lines.push(`  ${t.fg('dim', `No results for "${this.query}"`)}`);
+        lines.push('');
+        lines.push(
+          `  ${t.fg('muted', 'Try different keywords or change hub in /skillshare-settings')}`,
+        );
+      } else {
+        lines.push(`  ${t.fg('dim', 'Run /skillshare <query> to search')}`);
+      }
+      lines.push('');
+      // Key hints
+      lines.push(`  ${t.fg('dim', '← → or Tab tabs  |  s  search  |  Esc close')}`);
+      this.cachedLines = lines;
+      return lines;
+    }
 
-		// Paginate results
-		const visibleCount = Math.min(this.results.length, 14);
-		const startOffset = Math.max(
-			0,
-			Math.min(
-				this.cursor - Math.floor(visibleCount / 2),
-				this.results.length - visibleCount,
-			),
-		);
-		const endIndex = Math.min(startOffset + visibleCount, this.results.length);
+    // Results header
+    const hubLabel =
+      this.config.hubMode === 'community-hub' ? t.fg('muted', ' [community hub]') : '';
+    const sortLabel =
+      this.sortOrder === 'relevance'
+        ? 'relevance'
+        : this.sortOrder === 'desc'
+          ? '★ high→low'
+          : '★ low→high';
+    lines.push(
+      `  ${t.fg('muted', `${this.results.length} result(s)${hubLabel}`)}  ${t.fg('dim', `[${sortLabel}]`)}`,
+    );
+    lines.push('');
 
-		for (let i = startOffset; i < endIndex; i++) {
-			const r = this.results[i];
-			const isCursor = i === this.cursor;
-			const isChecked = this.checked[i];
-			const isInstalled = this.installedNames.has(r.Name);
+    // Paginate results
+    const visibleCount = Math.min(this.results.length, 14);
+    const startOffset = Math.max(
+      0,
+      Math.min(this.cursor - Math.floor(visibleCount / 2), this.results.length - visibleCount),
+    );
+    const endIndex = Math.min(startOffset + visibleCount, this.results.length);
 
-			const checkbox = isChecked
-				? t.fg("success", "✓")
-				: t.fg("dim", "○");
-			const cursorMarker = isCursor ? t.fg("accent", "▸") : " ";
+    for (let i = startOffset; i < endIndex; i++) {
+      const r = this.results[i];
+      const isCursor = i === this.cursor;
+      const isChecked = this.checked[i];
+      const isInstalled = this.installedNames.has(r.Name);
 
-			const starStr = formatStars(r.Stars);
-			const starTag = starStr ? t.fg("warning", ` ★${starStr}`) : "";
-			const installedTag = isInstalled
-				? ` ${t.fg("success", "installed")}`
-				: "";
+      const checkbox = isChecked ? t.fg('success', '✓') : t.fg('dim', '○');
+      const cursorMarker = isCursor ? t.fg('accent', '▸') : ' ';
 
-			let source = r.Source;
-			if (source.length > 34) source = "…" + source.slice(-33);
+      const starStr = formatStars(r.Stars);
+      const starTag = starStr ? t.fg('warning', ` ★${starStr}`) : '';
+      const installedTag = isInstalled ? ` ${t.fg('success', 'installed')}` : '';
 
-			const nameWidth = Math.floor(width * 0.32);
-			const name = truncateToWidth(
-				`${r.Name}${starTag}${installedTag}`,
-				nameWidth,
-			);
-			const src = truncateToWidth(source, Math.max(15, width - nameWidth - 8));
+      let source = r.Source;
+      if (source.length > 34) source = '…' + source.slice(-33);
 
-			lines.push(
-				` ${cursorMarker} ${checkbox} ${t.fg(isCursor ? "text" : "muted", name)} ${t.fg("dim", src)}`,
-			);
-		}
+      const nameWidth = Math.floor(width * 0.32);
+      const name = truncateToWidth(`${r.Name}${starTag}${installedTag}`, nameWidth);
+      const src = truncateToWidth(source, Math.max(15, width - nameWidth - 8));
 
-		if (this.results.length > visibleCount) {
-			lines.push(
-				`  ${t.fg("dim", `… ${this.results.length - visibleCount} more`)}`,
-			);
-		}
+      lines.push(
+        ` ${cursorMarker} ${checkbox} ${t.fg(isCursor ? 'text' : 'muted', name)} ${t.fg('dim', src)}`,
+      );
+    }
 
-		lines.push("");
+    if (this.results.length > visibleCount) {
+      lines.push(`  ${t.fg('dim', `… ${this.results.length - visibleCount} more`)}`);
+    }
 
-		// Status + hints
-		const count = this.checked.filter(Boolean).length;
-		if (count > 0) {
-			lines.push(
-				`  ${t.fg("success", `${count} selected — Enter to install`)}`,
-			);
-		}
-		lines.push(
-			`  ${t.fg("dim", "↑↓ navigate  |  Space toggle  |  Enter install  |  ← → or Tab tabs")}`,
-		);
+    lines.push('');
 
-		this.cachedWidth = width;
-		this.cachedLines = lines;
-		return lines;
-	}
+    // Status + hints
+    const count = this.checked.filter(Boolean).length;
+    if (count > 0) {
+      lines.push(`  ${t.fg('success', `${count} selected — Enter to install`)}`);
+    }
+    lines.push(
+      `  ${t.fg('dim', '↑↓ navigate  |  Space toggle  |  Enter install  |  o sort  |  ← → or Tab tabs')}`,
+    );
 
-	invalidate() {
-		this.cachedWidth = undefined;
-		this.cachedLines = undefined;
-	}
+    this.cachedWidth = width;
+    this.cachedLines = lines;
+    return lines;
+  }
+
+  invalidate() {
+    this.cachedWidth = undefined;
+    this.cachedLines = undefined;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -432,190 +431,182 @@ export class SearchPanel {
 // ---------------------------------------------------------------------------
 
 export class InstalledPanel {
-	private skills: InstalledSkill[] = [];
-	private cursor = 0;
-	private theme: Theme;
-	private config: SkillshareConfig;
-	private callbacks: SearchPanelCallbacks;
-	private loading = true;
-	private actionMsg = "";
-	private cachedWidth?: number;
-	private cachedLines?: string[];
+  private skills: InstalledSkill[] = [];
+  private cursor = 0;
+  private theme: Theme;
+  private config: SkillshareConfig;
+  private callbacks: SearchPanelCallbacks;
+  private loading = true;
+  private actionMsg = '';
+  private cachedWidth?: number;
+  private cachedLines?: string[];
 
-	constructor(
-		config: SkillshareConfig,
-		theme: Theme,
-		callbacks: SearchPanelCallbacks,
-	) {
-		this.config = config;
-		this.theme = theme;
-		this.callbacks = callbacks;
-		this.refresh();
-	}
+  constructor(config: SkillshareConfig, theme: Theme, callbacks: SearchPanelCallbacks) {
+    this.config = config;
+    this.theme = theme;
+    this.callbacks = callbacks;
+    this.refresh();
+  }
 
-	refresh() {
-		this.loading = true;
-		this.skills = listInstalledSkills(this.config.installMode === "project");
-		this.cursor = 0;
-		this.loading = false;
-		this.cachedWidth = undefined;
-	}
+  refresh() {
+    this.loading = true;
+    this.skills = listInstalledSkills(this.config.installMode === 'project');
+    this.cursor = 0;
+    this.loading = false;
+    this.cachedWidth = undefined;
+  }
 
-	handleInput(data: string) {
-		if (this.loading) return;
+  handleInput(data: string) {
+    if (this.loading) return;
 
-		if (matchesKey(data, Key.up) || matchesKey(data, "k")) {
-			if (this.skills.length > 0) {
-				this.cursor = Math.max(0, this.cursor - 1);
-				this.cachedWidth = undefined;
-			}
-			return;
-		}
-		if (matchesKey(data, Key.down) || matchesKey(data, "j")) {
-			if (this.skills.length > 0) {
-				this.cursor = Math.min(this.skills.length - 1, this.cursor + 1);
-				this.cachedWidth = undefined;
-			}
-			return;
-		}
-		if (matchesKey(data, "u") && this.skills.length > 0) {
-			// Uninstall focused skill
-			this.doUninstall();
-			return;
-		}
-		if (matchesKey(data, "U")) {
-			// Update all
-			this.doUpdate();
-			return;
-		}
-		if (matchesKey(data, "r")) {
-			this.refresh();
-			this.cachedWidth = undefined;
-			this.callbacks.onRequestRender();
-			return;
-		}
-	}
+    if (matchesKey(data, Key.up) || matchesKey(data, 'k')) {
+      if (this.skills.length > 0) {
+        this.cursor = Math.max(0, this.cursor - 1);
+        this.cachedWidth = undefined;
+      }
+      return;
+    }
+    if (matchesKey(data, Key.down) || matchesKey(data, 'j')) {
+      if (this.skills.length > 0) {
+        this.cursor = Math.min(this.skills.length - 1, this.cursor + 1);
+        this.cachedWidth = undefined;
+      }
+      return;
+    }
+    if (matchesKey(data, 'u') && this.skills.length > 0) {
+      // Uninstall focused skill
+      this.doUninstall();
+      return;
+    }
+    if (matchesKey(data, 'U')) {
+      // Update all
+      this.doUpdate();
+      return;
+    }
+    if (matchesKey(data, 'r')) {
+      this.refresh();
+      this.cachedWidth = undefined;
+      this.callbacks.onRequestRender();
+      return;
+    }
+  }
 
-	private async doUninstall() {
-		if (this.cursor >= this.skills.length) return;
-		const skill = this.skills[this.cursor];
-		this.actionMsg = `Uninstalling ${skill.name}...`;
-		this.callbacks.onSetStatus(this.actionMsg);
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
+  private async doUninstall() {
+    if (this.cursor >= this.skills.length) return;
+    const skill = this.skills[this.cursor];
+    this.actionMsg = `Uninstalling ${skill.name}...`;
+    this.callbacks.onSetStatus(this.actionMsg);
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
 
-		try {
-			uninstallSkill(skill.name, this.config.installMode === "project");
-			this.callbacks.onNotify(`Uninstalled ${skill.name}`, "success");
-			this.refresh();
-		} catch (err: unknown) {
-			this.callbacks.onNotify(
-				`Failed: ${err instanceof Error ? err.message : String(err)}`,
-				"error",
-			);
-		}
-		this.actionMsg = "";
-		this.callbacks.onClearStatus();
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
-	}
+    try {
+      uninstallSkill(skill.name, this.config.installMode === 'project');
+      this.callbacks.onNotify(`Uninstalled ${skill.name}`, 'success');
+      this.refresh();
+    } catch (err: unknown) {
+      this.callbacks.onNotify(
+        `Failed: ${err instanceof Error ? err.message : String(err)}`,
+        'error',
+      );
+    }
+    this.actionMsg = '';
+    this.callbacks.onClearStatus();
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
+  }
 
-	private async doUpdate() {
-		this.actionMsg = "Updating all skills...";
-		this.callbacks.onSetStatus(this.actionMsg);
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
+  private async doUpdate() {
+    this.actionMsg = 'Updating all skills...';
+    this.callbacks.onSetStatus(this.actionMsg);
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
 
-		try {
-			const output = updateSkills(this.config.installMode === "project");
-			this.callbacks.onNotify("All skills updated", "success");
-			console.log(`skillshare update:\n${output}`);
-		} catch (err: unknown) {
-			this.callbacks.onNotify(
-				`Update failed: ${err instanceof Error ? err.message : String(err)}`,
-				"error",
-			);
-		}
-		this.actionMsg = "";
-		this.callbacks.onClearStatus();
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
-	}
+    try {
+      const output = updateSkills(this.config.installMode === 'project');
+      this.callbacks.onNotify('All skills updated', 'success');
+      console.log(`skillshare update:\n${output}`);
+    } catch (err: unknown) {
+      this.callbacks.onNotify(
+        `Update failed: ${err instanceof Error ? err.message : String(err)}`,
+        'error',
+      );
+    }
+    this.actionMsg = '';
+    this.callbacks.onClearStatus();
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
+  }
 
-	render(width: number): string[] {
-		if (this.cachedLines && this.cachedWidth === width && !this.actionMsg) {
-			return this.cachedLines;
-		}
+  render(width: number): string[] {
+    if (this.cachedLines && this.cachedWidth === width && !this.actionMsg) {
+      return this.cachedLines;
+    }
 
-		const t = this.theme;
-		const lines: string[] = [];
-		const modeLabel =
-			this.config.installMode === "project" ? "project" : "global";
+    const t = this.theme;
+    const lines: string[] = [];
+    const modeLabel = this.config.installMode === 'project' ? 'project' : 'global';
 
-		lines.push(t.fg("accent", ` Installed Skills (${modeLabel})`));
-		lines.push("");
+    lines.push(t.fg('accent', ` Installed Skills (${modeLabel})`));
+    lines.push('');
 
-		if (this.loading) {
-			lines.push(`  ${t.fg("dim", "Loading...")}`);
-			return lines;
-		}
+    if (this.loading) {
+      lines.push(`  ${t.fg('dim', 'Loading...')}`);
+      return lines;
+    }
 
-		if (this.actionMsg) {
-			lines.push(`  ${t.fg("muted", this.actionMsg)}`);
-			return lines;
-		}
+    if (this.actionMsg) {
+      lines.push(`  ${t.fg('muted', this.actionMsg)}`);
+      return lines;
+    }
 
-		if (this.skills.length === 0) {
-			lines.push(`  ${t.fg("dim", "No installed skills")}`);
-			lines.push("");
-			lines.push(`  ${t.fg("muted", "Go to the Search tab to find and install skills")}`);
-			lines.push("");
-			lines.push(`  ${t.fg("dim", "← → or Tab tabs  |  r refresh  |  Esc close")}`);
-			this.cachedLines = lines;
-			return lines;
-		}
+    if (this.skills.length === 0) {
+      lines.push(`  ${t.fg('dim', 'No installed skills')}`);
+      lines.push('');
+      lines.push(`  ${t.fg('muted', 'Go to the Search tab to find and install skills')}`);
+      lines.push('');
+      lines.push(`  ${t.fg('dim', '← → or Tab tabs  |  r refresh  |  Esc close')}`);
+      this.cachedLines = lines;
+      return lines;
+    }
 
-		lines.push(`  ${t.fg("muted", `${this.skills.length} skill(s) installed`)}`);
-		lines.push("");
+    lines.push(`  ${t.fg('muted', `${this.skills.length} skill(s) installed`)}`);
+    lines.push('');
 
-		const visibleCount = Math.min(this.skills.length, 16);
-		const startOffset = Math.max(
-			0,
-			Math.min(
-				this.cursor - Math.floor(visibleCount / 2),
-				this.skills.length - visibleCount,
-			),
-		);
-		const endIndex = Math.min(startOffset + visibleCount, this.skills.length);
+    const visibleCount = Math.min(this.skills.length, 16);
+    const startOffset = Math.max(
+      0,
+      Math.min(this.cursor - Math.floor(visibleCount / 2), this.skills.length - visibleCount),
+    );
+    const endIndex = Math.min(startOffset + visibleCount, this.skills.length);
 
-		for (let i = startOffset; i < endIndex; i++) {
-			const s = this.skills[i];
-			const isCursor = i === this.cursor;
-			const cursorMarker = isCursor ? t.fg("accent", "▸") : " ";
-			const name = truncateToWidth(s.name, Math.floor(width * 0.4));
-			lines.push(
-				` ${cursorMarker} ${t.fg(isCursor ? "text" : "muted", name)} ${t.fg("dim", truncateToWidth(s.path, Math.max(10, width - 50)))}`,
-			);
-		}
+    for (let i = startOffset; i < endIndex; i++) {
+      const s = this.skills[i];
+      const isCursor = i === this.cursor;
+      const cursorMarker = isCursor ? t.fg('accent', '▸') : ' ';
+      const name = truncateToWidth(s.name, Math.floor(width * 0.4));
+      lines.push(
+        ` ${cursorMarker} ${t.fg(isCursor ? 'text' : 'muted', name)} ${t.fg('dim', truncateToWidth(s.path, Math.max(10, width - 50)))}`,
+      );
+    }
 
-		if (this.skills.length > visibleCount) {
-			lines.push(`  ${t.fg("dim", `… ${this.skills.length - visibleCount} more`)}`);
-		}
+    if (this.skills.length > visibleCount) {
+      lines.push(`  ${t.fg('dim', `… ${this.skills.length - visibleCount} more`)}`);
+    }
 
-		lines.push("");
-		lines.push(
-			`  ${t.fg("dim", "↑↓ navigate  |  u uninstall  |  U update all  |  r refresh  |  ← → or Tab tabs")}`,
-		);
+    lines.push('');
+    lines.push(
+      `  ${t.fg('dim', '↑↓ navigate  |  u uninstall  |  U update all  |  r refresh  |  ← → or Tab tabs')}`,
+    );
 
-		this.cachedWidth = width;
-		this.cachedLines = lines;
-		return lines;
-	}
+    this.cachedWidth = width;
+    this.cachedLines = lines;
+    return lines;
+  }
 
-	invalidate() {
-		this.cachedWidth = undefined;
-		this.cachedLines = undefined;
-	}
+  invalidate() {
+    this.cachedWidth = undefined;
+    this.cachedLines = undefined;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -623,118 +614,117 @@ export class InstalledPanel {
 // ---------------------------------------------------------------------------
 
 export class StatusPanel {
-	private theme: Theme;
-	private config: SkillshareConfig;
-	private callbacks: SearchPanelCallbacks;
-	private actionMsg = "";
-	private cachedWidth?: number;
-	private cachedLines?: string[];
+  private theme: Theme;
+  private config: SkillshareConfig;
+  private callbacks: SearchPanelCallbacks;
+  private actionMsg = '';
+  private cachedWidth?: number;
+  private cachedLines?: string[];
 
-	constructor(
-		config: SkillshareConfig,
-		theme: Theme,
-		callbacks: SearchPanelCallbacks,
-	) {
-		this.config = config;
-		this.theme = theme;
-		this.callbacks = callbacks;
-	}
+  constructor(config: SkillshareConfig, theme: Theme, callbacks: SearchPanelCallbacks) {
+    this.config = config;
+    this.theme = theme;
+    this.callbacks = callbacks;
+  }
 
-	handleInput(data: string) {
-		if (matchesKey(data, "s")) {
-			this.doAction("sync");
-		} else if (matchesKey(data, "u")) {
-			this.doAction("update");
-		} else if (matchesKey(data, "d")) {
-			this.doAction("doctor");
-		}
-	}
+  handleInput(data: string) {
+    if (matchesKey(data, 's')) {
+      this.doAction('sync');
+    } else if (matchesKey(data, 'u')) {
+      this.doAction('update');
+    } else if (matchesKey(data, 'd')) {
+      this.doAction('doctor');
+    }
+  }
 
-	private async doAction(action: "sync" | "update" | "doctor") {
-		const labels: Record<string, string> = {
-			sync: "Syncing skills to targets...",
-			update: "Updating all skills...",
-			doctor: "Running doctor...",
-		};
-		this.actionMsg = labels[action];
-		this.callbacks.onSetStatus(this.actionMsg);
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
+  private async doAction(action: 'sync' | 'update' | 'doctor') {
+    const labels: Record<string, string> = {
+      sync: 'Syncing skills to targets...',
+      update: 'Updating all skills...',
+      doctor: 'Running doctor...',
+    };
+    this.actionMsg = labels[action];
+    this.callbacks.onSetStatus(this.actionMsg);
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
 
-		try {
-			let output = "";
-			switch (action) {
-				case "sync":
-					output = syncSkills(this.config.installMode === "project");
-					break;
-				case "update":
-					output = updateSkills(this.config.installMode === "project");
-					break;
-				case "doctor":
-					output = runDoctor();
-					break;
-			}
-			this.callbacks.onNotify(`${action} completed`, "success");
-			console.log(`skillshare ${action}:\n${output}`);
-		} catch (err: unknown) {
-			this.callbacks.onNotify(
-				`${action} failed: ${err instanceof Error ? err.message : String(err)}`,
-				"error",
-			);
-		}
-		this.actionMsg = "";
-		this.callbacks.onClearStatus();
-		this.cachedWidth = undefined;
-		this.callbacks.onRequestRender();
-	}
+    try {
+      let output = '';
+      switch (action) {
+        case 'sync':
+          output = syncSkills(this.config.installMode === 'project');
+          break;
+        case 'update':
+          output = updateSkills(this.config.installMode === 'project');
+          break;
+        case 'doctor':
+          output = runDoctor();
+          break;
+      }
+      this.callbacks.onNotify(`${action} completed`, 'success');
+      console.log(`skillshare ${action}:\n${output}`);
+    } catch (err: unknown) {
+      this.callbacks.onNotify(
+        `${action} failed: ${err instanceof Error ? err.message : String(err)}`,
+        'error',
+      );
+    }
+    this.actionMsg = '';
+    this.callbacks.onClearStatus();
+    this.cachedWidth = undefined;
+    this.callbacks.onRequestRender();
+  }
 
-	render(width: number): string[] {
-		if (this.cachedLines && this.cachedWidth === width && !this.actionMsg) {
-			return this.cachedLines;
-		}
+  render(width: number): string[] {
+    if (this.cachedLines && this.cachedWidth === width && !this.actionMsg) {
+      return this.cachedLines;
+    }
 
-		const t = this.theme;
-		const lines: string[] = [];
+    const t = this.theme;
+    const lines: string[] = [];
 
-		lines.push(t.fg("accent", " Skillshare Status"));
-		lines.push("");
+    lines.push(t.fg('accent', ' Skillshare Status'));
+    lines.push('');
 
-		if (this.actionMsg) {
-			lines.push(`  ${t.fg("muted", this.actionMsg)}`);
-			return lines;
-		}
+    if (this.actionMsg) {
+      lines.push(`  ${t.fg('muted', this.actionMsg)}`);
+      return lines;
+    }
 
-		// Version
-		const version = listInstalledSkills(this.config.installMode === "project").length;
-		lines.push(`  ${t.fg("muted", "Skills installed:")}  ${t.fg("text", String(version))}`);
+    // Version
+    const version = listInstalledSkills(this.config.installMode === 'project').length;
+    lines.push(`  ${t.fg('muted', 'Skills installed:')}  ${t.fg('text', String(version))}`);
 
-		const modeLabel = this.config.installMode === "project" ? "project (.skillshare/)" : "global (~/.config/skillshare)";
-		lines.push(`  ${t.fg("muted", "Install mode:")}      ${t.fg("text", modeLabel)}`);
+    const modeLabel =
+      this.config.installMode === 'project'
+        ? 'project (.skillshare/)'
+        : 'global (~/.config/skillshare)';
+    lines.push(`  ${t.fg('muted', 'Install mode:')}      ${t.fg('text', modeLabel)}`);
 
-		const hubLabel = this.config.hubMode === "community-hub" ? "community hub" : "GitHub search";
-		lines.push(`  ${t.fg("muted", "Search source:")}     ${t.fg("text", hubLabel)}`);
+    const hubLabel = this.config.hubMode === 'community-hub' ? 'community hub' : 'GitHub search';
+    lines.push(`  ${t.fg('muted', 'Search source:')}     ${t.fg('text', hubLabel)}`);
 
-		const hasProject = listInstalledSkills(true).length > 0;
-		const hasGlobal = listInstalledSkills(false).length > 0;
-		lines.push(
-			`  ${t.fg("muted", "Project skills:")}    ${hasProject ? t.fg("success", "found") : t.fg("dim", "none")}`,
-		);
-		lines.push(
-			`  ${t.fg("muted", "Global skills:")}     ${hasGlobal ? t.fg("success", "found") : t.fg("dim", "none")}`,
-		);
-		lines.push("");
-		lines.push(`  ${t.fg("dim", "Actions:  s sync  |  u update  |  d doctor")}`);
-		lines.push(`  ${t.fg("dim", "← → or Tab tabs  |  Esc close")}`);
+    const hasProject = listInstalledSkills(true).length > 0;
+    const hasGlobal = listInstalledSkills(false).length > 0;
+    lines.push(
+      `  ${t.fg('muted', 'Project skills:')}    ${hasProject ? t.fg('success', 'found') : t.fg('dim', 'none')}`,
+    );
+    lines.push(
+      `  ${t.fg('muted', 'Global skills:')}     ${hasGlobal ? t.fg('success', 'found') : t.fg('dim', 'none')}`,
+    );
+    lines.push('');
+    lines.push(`  ${t.fg('dim', 'Actions:  s sync  |  u update  |  d doctor')}`);
+    lines.push(`  ${t.fg('dim', '← → or Tab tabs  |  Esc close')}`);
 
-		this.cachedWidth = width;
-		this.cachedLines = lines;
-		return lines;
-	}
+    this.cachedWidth = width;
+    this.cachedLines = lines;
+    return lines;
+  }
 
-	invalidate() {
-		this.cachedWidth = undefined;
-		this.cachedLines = undefined;
-	}
+  invalidate() {
+    this.cachedWidth = undefined;
+    this.cachedLines = undefined;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -742,168 +732,162 @@ export class StatusPanel {
 // ---------------------------------------------------------------------------
 
 export interface SettingsCallbacks {
-	onConfigChange: (config: SkillshareConfig) => void;
-	onNotify: (msg: string, type: "info" | "success" | "error") => void;
-	onRequestRender: () => void;
+  onConfigChange: (config: SkillshareConfig) => void;
+  onNotify: (msg: string, type: 'info' | 'success' | 'error') => void;
+  onRequestRender: () => void;
 }
 
 export class SettingsPanel {
-	private config: SkillshareConfig;
-	private theme: Theme;
-	private callbacks: SettingsCallbacks;
-	private cursor = 0;
-	private cachedWidth?: number;
-	private cachedLines?: string[];
+  private config: SkillshareConfig;
+  private theme: Theme;
+  private callbacks: SettingsCallbacks;
+  private cursor = 0;
+  private cachedWidth?: number;
+  private cachedLines?: string[];
 
-	// Setting options
-	private settings: Array<{
-		id: string;
-		label: string;
-		detail: string;
-		values: string[];
-		currentIndex: number;
-	}>;
+  // Setting options
+  private settings: Array<{
+    id: string;
+    label: string;
+    detail: string;
+    values: string[];
+    currentIndex: number;
+  }>;
 
-	constructor(config: SkillshareConfig, theme: Theme, callbacks: SettingsCallbacks) {
-		this.config = { ...config };
-		this.theme = theme;
-		this.callbacks = callbacks;
-		this.buildSettings();
-	}
+  constructor(config: SkillshareConfig, theme: Theme, callbacks: SettingsCallbacks) {
+    this.config = { ...config };
+    this.theme = theme;
+    this.callbacks = callbacks;
+    this.buildSettings();
+  }
 
-	private buildSettings() {
-		this.settings = [
-			{
-				id: "hubMode",
-				label: "Search source",
-				detail: "Where to search for skills",
-				values: ["GitHub search", "Community hub"],
-				currentIndex: this.config.hubMode === "community-hub" ? 1 : 0,
-			},
-			{
-				id: "installMode",
-				label: "Default install target",
-				detail: "Where skills are installed by default",
-				values: ["Global (~/.config)", "Project (.skillshare/)"],
-				currentIndex: this.config.installMode === "project" ? 1 : 0,
-			},
-			{
-			id: "operationScope",
-			label: "Check/update scope",
-			detail: "Scope for check and update commands",
-			values: ["Global", "Project"],
-			currentIndex: this.config.operationScope === "project" ? 1 : 0,
-		},
-		{
-			id: "searchLimit",
-			label: "Search result limit",
-			detail: "Max results per search",
-			values: ["10", "20", "30", "50"],
-			currentIndex: (() => {
-				const idx = [10, 20, 30, 50].indexOf(this.config.searchLimit);
-				return idx >= 0 ? idx : 1; // default to 20
-			})(),
-		},
-		];
-	}
+  private buildSettings() {
+    this.settings = [
+      {
+        id: 'hubMode',
+        label: 'Search source',
+        detail: 'Where to search for skills',
+        values: ['GitHub search', 'Community hub'],
+        currentIndex: this.config.hubMode === 'community-hub' ? 1 : 0,
+      },
+      {
+        id: 'installMode',
+        label: 'Default install target',
+        detail: 'Where skills are installed by default',
+        values: ['Global (~/.config)', 'Project (.skillshare/)'],
+        currentIndex: this.config.installMode === 'project' ? 1 : 0,
+      },
+      {
+        id: 'operationScope',
+        label: 'Check/update scope',
+        detail: 'Scope for check and update commands',
+        values: ['Global', 'Project'],
+        currentIndex: this.config.operationScope === 'project' ? 1 : 0,
+      },
+      {
+        id: 'searchLimit',
+        label: 'Search result limit',
+        detail: 'Max results per search',
+        values: ['10', '20', '30', '50'],
+        currentIndex: (() => {
+          const idx = [10, 20, 30, 50].indexOf(this.config.searchLimit);
+          return idx >= 0 ? idx : 1; // default to 20
+        })(),
+      },
+    ];
+  }
 
-	handleInput(data: string) {
-		if (matchesKey(data, Key.up) || matchesKey(data, "k")) {
-			this.cursor = this.cursor === 0 ? this.settings.length - 1 : this.cursor - 1;
-			this.cachedWidth = undefined;
-			return;
-		}
-		if (matchesKey(data, Key.down) || matchesKey(data, "j")) {
-			this.cursor = this.cursor === this.settings.length - 1 ? 0 : this.cursor + 1;
-			this.cachedWidth = undefined;
-			return;
-		}
-		if (matchesKey(data, Key.left)) {
-			const setting = this.settings[this.cursor];
-			setting.currentIndex =
-				setting.currentIndex === 0
-					? setting.values.length - 1
-					: setting.currentIndex - 1;
-			this.applySetting(setting);
-			this.cachedWidth = undefined;
-			return;
-		}
-		if (matchesKey(data, Key.right)) {
-			const setting = this.settings[this.cursor];
-			setting.currentIndex =
-				setting.currentIndex === setting.values.length - 1
-					? 0
-					: setting.currentIndex + 1;
-			this.applySetting(setting);
-			this.cachedWidth = undefined;
-			return;
-		}
-	}
+  handleInput(data: string) {
+    if (matchesKey(data, Key.up) || matchesKey(data, 'k')) {
+      this.cursor = this.cursor === 0 ? this.settings.length - 1 : this.cursor - 1;
+      this.cachedWidth = undefined;
+      return;
+    }
+    if (matchesKey(data, Key.down) || matchesKey(data, 'j')) {
+      this.cursor = this.cursor === this.settings.length - 1 ? 0 : this.cursor + 1;
+      this.cachedWidth = undefined;
+      return;
+    }
+    if (matchesKey(data, Key.left)) {
+      const setting = this.settings[this.cursor];
+      setting.currentIndex =
+        setting.currentIndex === 0 ? setting.values.length - 1 : setting.currentIndex - 1;
+      this.applySetting(setting);
+      this.cachedWidth = undefined;
+      return;
+    }
+    if (matchesKey(data, Key.right)) {
+      const setting = this.settings[this.cursor];
+      setting.currentIndex =
+        setting.currentIndex === setting.values.length - 1 ? 0 : setting.currentIndex + 1;
+      this.applySetting(setting);
+      this.cachedWidth = undefined;
+      return;
+    }
+  }
 
-	private applySetting(setting: (typeof this.settings)[0]) {
-		const newConfig = { ...this.config };
+  private applySetting(setting: (typeof this.settings)[0]) {
+    const newConfig = { ...this.config };
 
-		switch (setting.id) {
-			case "hubMode":
-				newConfig.hubMode = setting.currentIndex === 1 ? "community-hub" : "github";
-				break;
-			case "installMode":
-				newConfig.installMode = setting.currentIndex === 1 ? "project" : "global";
-				break;
-			case "operationScope":
-				newConfig.operationScope = setting.currentIndex === 1 ? "project" : "global";
-				break;
-			case "searchLimit":
-				newConfig.searchLimit = [10, 20, 30, 50][setting.currentIndex] ?? 20;
-				break;
-		}
+    switch (setting.id) {
+      case 'hubMode':
+        newConfig.hubMode = setting.currentIndex === 1 ? 'community-hub' : 'github';
+        break;
+      case 'installMode':
+        newConfig.installMode = setting.currentIndex === 1 ? 'project' : 'global';
+        break;
+      case 'operationScope':
+        newConfig.operationScope = setting.currentIndex === 1 ? 'project' : 'global';
+        break;
+      case 'searchLimit':
+        newConfig.searchLimit = [10, 20, 30, 50][setting.currentIndex] ?? 20;
+        break;
+    }
 
-		this.config = newConfig;
-		this.callbacks.onConfigChange(newConfig);
-	}
+    this.config = newConfig;
+    this.callbacks.onConfigChange(newConfig);
+  }
 
-	render(width: number): string[] {
-		if (this.cachedLines && this.cachedWidth === width) return this.cachedLines;
+  render(width: number): string[] {
+    if (this.cachedLines && this.cachedWidth === width) return this.cachedLines;
 
-		const t = this.theme;
-		const lines: string[] = [];
+    const t = this.theme;
+    const lines: string[] = [];
 
-		lines.push(t.fg("accent", " Settings"));
-		lines.push("");
-		lines.push(
-			`  ${t.fg("muted", "↑↓ navigate  |  ← → change value  |  Esc close")}`,
-		);
-		lines.push("");
+    lines.push(t.fg('accent', ' Settings'));
+    lines.push('');
+    lines.push(`  ${t.fg('muted', '↑↓ navigate  |  ← → change value  |  Esc close')}`);
+    lines.push('');
 
-		for (let i = 0; i < this.settings.length; i++) {
-			const s = this.settings[i];
-			const isCursor = i === this.cursor;
-			const cursorMarker = isCursor ? t.fg("accent", "▸") : " ";
+    for (let i = 0; i < this.settings.length; i++) {
+      const s = this.settings[i];
+      const isCursor = i === this.cursor;
+      const cursorMarker = isCursor ? t.fg('accent', '▸') : ' ';
 
-			const label = t.fg(isCursor ? "text" : "muted", s.label);
-			const value = t.fg("accent", s.values[s.currentIndex]);
-			const detail = `  ${t.fg("dim", s.detail)}`;
+      const label = t.fg(isCursor ? 'text' : 'muted', s.label);
+      const value = t.fg('accent', s.values[s.currentIndex]);
+      const detail = `  ${t.fg('dim', s.detail)}`;
 
-			lines.push(` ${cursorMarker} ${label}: ${value}${detail}`);
-		}
+      lines.push(` ${cursorMarker} ${label}: ${value}${detail}`);
+    }
 
-		lines.push("");
-		lines.push(
-			`  ${t.fg(
-				"dim",
-				this.config.hubMode === "community-hub"
-					? "Search uses community skillshare-hub (--hub flag)"
-					: "Search queries GitHub directly (no --hub flag)",
-			)}`,
-		);
+    lines.push('');
+    lines.push(
+      `  ${t.fg(
+        'dim',
+        this.config.hubMode === 'community-hub'
+          ? 'Search uses community skillshare-hub (--hub flag)'
+          : 'Search queries GitHub directly (no --hub flag)',
+      )}`,
+    );
 
-		this.cachedWidth = width;
-		this.cachedLines = lines;
-		return lines;
-	}
+    this.cachedWidth = width;
+    this.cachedLines = lines;
+    return lines;
+  }
 
-	invalidate() {
-		this.cachedWidth = undefined;
-		this.cachedLines = undefined;
-	}
+  invalidate() {
+    this.cachedWidth = undefined;
+    this.cachedLines = undefined;
+  }
 }

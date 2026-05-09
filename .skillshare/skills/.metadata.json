@@ -153,18 +153,6 @@
         "SKILL.md": "sha256:b819f0285e4e5814ac6472d0217f07dc9f23d2fdae3ebb0dd31d98360d8ac029"
       }
     },
-    "verify": {
-      "source": "github.com/facebook/react/.claude/skills/verify",
-      "type": "github-subdir",
-      "installed_at": "2026-05-09T17:36:02.927155266+02:00",
-      "repo_url": "https://github.com/facebook/react.git",
-      "subdir": ".claude/skills/verify",
-      "version": "d5736f0",
-      "tree_hash": "34f69a61c3ad7a4473c46238b8e3a3516a0bfd02",
-      "file_hashes": {
-        "SKILL.md": "sha256:070d8a87c34b661d98c7b8d72b4443706c4f78386647b115476d34121e70d0be"
-      }
-    },
     "write-a-skill": {
       "source": "github.com/mattpocock/skills/skills/productivity/write-a-skill",
       "type": "github-subdir",
