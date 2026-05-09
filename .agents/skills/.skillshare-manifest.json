@@ -1,0 +1,15 @@
+{
+  "managed": {
+    "publish-npm-package": "f530bbee832a0de82c5a026b0b95f6d115c622dbcfeb5a979a002ee5f7d1a222",
+    "release-please-development": "6696ee470ccc4fd23c056bcc2bc7314dcb10b08c29abb0d3d9eaef3edb1875ac",
+    "skill": "e8fafa5af9008c665329c11244cd94d76392ea0c788ac907b6a2108f5a85c1c3",
+    "verify": "1f235aa6fdff6f78d2ab2f87bba7628c9a218cbb059812e6294e7edd8e9c7608"
+  },
+  "mtimes": {
+    "publish-npm-package": 1778345121275702800,
+    "release-please-development": 1778345532920019800,
+    "skill": 1778340490604792700,
+    "verify": 1778340962919777600
+  },
+  "updated_at": "2026-05-09T18:52:40.053025989+02:00"
+}

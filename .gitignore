@@ -10,7 +10,7 @@ mcp.json
 .agentsmesh/mcp.json
 
 # docs, contex
-./docs/
+docs/
 
 # agents
 agentsmesh.local.yaml

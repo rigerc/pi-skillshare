@@ -42,6 +42,48 @@
         "SKILL.md": "sha256:9e9b617b1c70d390e37dbfd1c031c11b3de850e2e3d01c4a2c2888bdb386a247"
       }
     },
+    "publish-npm-package": {
+      "source": "github.com/yigitkonur/skills-by-yigitkonur/skills/publish-npm-package/skills/publish-npm-package",
+      "type": "github-subdir",
+      "installed_at": "2026-05-09T18:45:21.516858526+02:00",
+      "repo_url": "https://github.com/yigitkonur/skills-by-yigitkonur.git",
+      "subdir": "skills/publish-npm-package/skills/publish-npm-package",
+      "version": "8454ef6",
+      "tree_hash": "1754e6661183ce1ea72e83a9d07aaa19e690ba30",
+      "file_hashes": {
+        "SKILL.md": "sha256:87ac35511660dff0e3cd0672548e97ddb922976cc18e8684b43e65e28c16171f",
+        "references/auth/granular-tokens.md": "sha256:5229670beba112c4a27bf14d66d69c00a633be5b58ff01793bffdfbbdcd44263",
+        "references/auth/oidc-trusted-publishing.md": "sha256:d42513bc6cbe54832499350995519dd13ac6585536319ba1b26ff9c1b54b1f52",
+        "references/common-issues.md": "sha256:9fad437d81c8f6d562c09dd79cf6bb0d13fc535a4e76b9e05474c736f942135a",
+        "references/monorepo-publishing.md": "sha256:33f76b04c044514fec2e160699bf01c5c7b3d60e98f5e1dc739292be3e892c11",
+        "references/package-config.md": "sha256:9d5de7dae31b582bff9cb68b819bce38987d49a423d2d0c6a88f4ba89026b919",
+        "references/supply-chain.md": "sha256:3d8ae4e15619b54184a1e913e41b9e63b68c7eecad61fa916aed0e3a95790a48",
+        "references/versioning/changesets.md": "sha256:8be63652af89e19fbacc17883d2a92ce22ef4704052f0d70b6d8751098c5eaee",
+        "references/versioning/release-please.md": "sha256:9984c88d0ea87b601e2d16a16a6d264c48b15066d844c73cda1b3d86bbcef80d",
+        "references/versioning/semantic-release.md": "sha256:a6fda921c539737d122998ea64db2968486af9bfe6f96c5f90c2870f3559df2d",
+        "references/workflows/oidc-workflows.md": "sha256:eeaac54111ca857a5f319790f30d3f96eb85ed4af215d7ce6e3acd294b93ce5d",
+        "references/workflows/token-workflows.md": "sha256:af767084da661d28987130e485e3894f7ae35d10f3c4975e88b7f309cd80f574",
+        "scripts/check-npm-auth.md": "sha256:9c4881683d1e8bc547385aa8827c050145908cf82d2096da9a6925c968d0d6fb",
+        "scripts/check-npm-auth.sh": "sha256:e7e573e2c09d4f7c0fbd8073f82369f10261a45cdda02bcc8879f6eeba46e6f7",
+        "scripts/check-package-json.md": "sha256:f16adfd29ff587ad62fefc33368482d012591966c82af31791d4a95ee153dc2f",
+        "scripts/check-package-json.mjs": "sha256:47ed34aa39f8015b4b47f2cc1e6e36389bd048822a0e96131843cecfa77d669d",
+        "scripts/dry-run-publish.md": "sha256:bc8d7f0ec2ef5b7470da11a8c7aac6aae592f28533f020c7f4298a99ce505620",
+        "scripts/dry-run-publish.sh": "sha256:93851c133a3ac269f739c40d31f8969490e131f57bcf7a8101038bb10af6c711"
+      }
+    },
+    "release-please-development": {
+      "source": "github.com/majiayu000/claude-skill-registry/skills/other/release-please-development",
+      "type": "github-subdir",
+      "installed_at": "2026-05-09T18:52:12.93208464+02:00",
+      "repo_url": "https://github.com/majiayu000/claude-skill-registry.git",
+      "subdir": "skills/other/release-please-development",
+      "version": "fc98f4ec9",
+      "tree_hash": "ac09c8db8f28406967abd542a07d02cbc8d3f70a",
+      "file_hashes": {
+        "SKILL.md": "sha256:05eff4956edcd032df7e61304f2d6c4a9a71512892431ba6a0493695cf290073",
+        "metadata.json": "sha256:98b687998bfa0f81680b355469dddbc4d0c589a0a7d46d6267994eff9b973f39"
+      }
+    },
     "setup-matt-pocock-skills": {
       "source": "github.com/mattpocock/skills/skills/engineering/setup-matt-pocock-skills",
       "type": "github-subdir",
@@ -57,6 +99,18 @@
         "issue-tracker-gitlab.md": "sha256:94c574647c4755f2a807742f5e78e7cef586c100266d54501d0e55445c1b1807",
         "issue-tracker-local.md": "sha256:9a052f4599525e581721ec24cb2ae3e0296b79053e39f684b540d34d3a4f6528",
         "triage-labels.md": "sha256:4f53c9b40ce2651e3611aa090eaedbd6dbc9b71ef8c5f7e65eac0d8263190d0d"
+      }
+    },
+    "skill": {
+      "source": "github.com/aleqsio/react-native-worktree/skill",
+      "type": "github-subdir",
+      "installed_at": "2026-05-09T17:28:10.621130048+02:00",
+      "repo_url": "https://github.com/aleqsio/react-native-worktree.git",
+      "subdir": "skill",
+      "version": "b867f4d",
+      "tree_hash": "5b299e5ff585573980f7058fdadad4b5b4876609",
+      "file_hashes": {
+        "SKILL.md": "sha256:c582ab9f3e4903168d4b6e46c7c1c787bda1b6700dcd01dd76cded00a1e97c29"
       }
     },
     "td-task-management": {
@@ -109,6 +163,18 @@
         "AGENT-BRIEF.md": "sha256:1c71c747aa97d938f75ec7a4b8fe87451763b38a3ce6348acf2b222e5819b2e5",
         "OUT-OF-SCOPE.md": "sha256:8ed8cf27833444060c81b3961a83c0e3d8e6cf2fcb2ddf6f8b07c6655cbb0d85",
         "SKILL.md": "sha256:b819f0285e4e5814ac6472d0217f07dc9f23d2fdae3ebb0dd31d98360d8ac029"
+      }
+    },
+    "verify": {
+      "source": "github.com/facebook/react/.claude/skills/verify",
+      "type": "github-subdir",
+      "installed_at": "2026-05-09T17:36:02.927155266+02:00",
+      "repo_url": "https://github.com/facebook/react.git",
+      "subdir": ".claude/skills/verify",
+      "version": "d5736f0",
+      "tree_hash": "34f69a61c3ad7a4473c46238b8e3a3516a0bfd02",
+      "file_hashes": {
+        "SKILL.md": "sha256:070d8a87c34b661d98c7b8d72b4443706c4f78386647b115476d34121e70d0be"
       }
     },
     "write-a-skill": {
