@@ -1,12 +1,38 @@
 {
-  "devDependencies": {
-    "eslint": "^10.3.0",
-    "prettier": "^3.8.3",
-    "vitest": "^4.1.5"
+  "name": "pi-skillshare",
+  "version": "0.1.2",
+  "description": "Search, install, and manage skillshare AI agent skills from within Pi",
+  "keywords": [
+    "pi-package"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rigerc/pi-skillshare.git"
   },
+  "files": [
+    "src/",
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "license": "MIT",
+  "type": "module",
   "scripts": {
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "pi": {
+    "extensions": [
+      "./src"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "devDependencies": {
+    "eslint": "^10.3.0",
+    "prettier": "^3.8.3",
+    "vitest": "^4.1.5"
   }
 }

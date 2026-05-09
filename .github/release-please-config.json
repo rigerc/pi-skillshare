@@ -3,10 +3,9 @@
   "release-type": "node",
   "baseBranch": "master",
   "packages": {
-    "pi-skillshare": {
+    ".": {
       "release-type": "node",
       "changelog-path": "CHANGELOG.md",
-      "include-component-in-tag": true,
       "include-v-in-tag": true
     }
   },

@@ -33,9 +33,6 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    defaults:
-      run:
-        working-directory: pi-skillshare
     steps:
       - uses: actions/checkout@v6
 
