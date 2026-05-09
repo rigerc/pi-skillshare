@@ -1,0 +1,35 @@
+# mkproject: these patterns mirror the _exclude list in copier.yml so
+# Copier never renders them. This .gitignore catches anything that
+# gets created post-generation by tools like td/skillshare/agentsmesh.
+
+# env
+.env
+.envrc
+.mcp.json
+mcp.json
+.agentsmesh/mcp.json
+
+# docs, contex
+./docs/
+
+# agents
+agentsmesh.local.yaml
+.agentsmeshcache
+.agentsmesh/.lock.tmp
+.agentsmesh/packs/
+./.agents/
+!/.agents/skills/*
+.pi/skills/*
+/skills
+.mux/
+.claude/
+.codex/
+.opencode/
+skills-lock.json
+opencode.json
+opencode.jsonc
+CLAUDE.md
+
+# todos
+./.todos/
+copier/

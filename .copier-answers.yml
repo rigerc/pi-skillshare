@@ -1,0 +1,49 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: 67f0aaf
+_src_path: gh:rigerc/repo-3
+create_github_repo: false
+created_year: '2026'
+description: ''
+init_agentsmesh: true
+init_git: true
+init_skillshare: true
+init_td: true
+initial_commit: true
+install_matt_pocock_skills: true
+license: MIT
+project_name: pi-extensions
+project_slug: pi-extensions
+search_skills: false
+skillshare_targets:
+- universal
+- claude
+- codex
+- opencode
+- pi
+status: active
+tags: []

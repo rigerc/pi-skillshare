@@ -1,0 +1,3 @@
+# mkproject: this prevents Copier from rendering the docs/ directory from
+# the template. Projects manage their own docs separately.
+!docs/
