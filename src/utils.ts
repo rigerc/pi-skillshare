@@ -438,7 +438,7 @@ export function updateSkills(projectMode: boolean): string {
 }
 
 export function uninstallSkill(name: string, projectMode: boolean): string {
-  const args = ['uninstall', name];
+  const args = ['uninstall', name, '--force'];
   if (projectMode) args.push('-p');
   try {
     return execFileSync('skillshare', args, {
@@ -449,6 +449,33 @@ export function uninstallSkill(name: string, projectMode: boolean): string {
   } catch (err: unknown) {
     throw toSkillshareError(err);
   }
+}
+
+export async function uninstallSkillAsync(name: string, projectMode: boolean): Promise<string> {
+  const args = ['uninstall', name, '--force'];
+  if (projectMode) args.push('-p');
+  return new Promise((resolve, reject) => {
+    execFile(
+      'skillshare',
+      args,
+      {
+        encoding: 'utf-8',
+        timeout: 30_000,
+        maxBuffer: 10 * 1024 * 1024,
+      },
+      (err, stdout, stderr) => {
+        if (err) {
+          (err as any).stdout = stdout ?? '';
+          (err as any).stderr = stderr ?? '';
+          reject(err);
+        } else {
+          resolve((stdout ?? '').trim());
+        }
+      },
+    );
+  }).catch((err: unknown) => {
+    throw toSkillshareError(err);
+  });
 }
 
 export function checkSkills(projectMode: boolean): CheckOutput {

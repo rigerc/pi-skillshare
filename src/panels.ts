@@ -15,10 +15,10 @@ import type { SkillSearchResult, InstalledSkill, SkillshareConfig } from './util
 import {
   searchSkillsAsync,
   installSkillAsync,
+  uninstallSkillAsync,
   listInstalledSkills,
   syncSkills,
   updateSkills,
-  uninstallSkill,
   runDoctor,
   startSpinner,
   formatStars,
@@ -451,6 +451,7 @@ export class SearchPanel {
 export class InstalledPanel {
   private skills: InstalledSkill[] = [];
   private cursor = 0;
+  private checked: boolean[] = [];
   private theme: Theme;
   private config: SkillshareConfig;
   private callbacks: SearchPanelCallbacks;
@@ -470,6 +471,7 @@ export class InstalledPanel {
     this.loading = true;
     this.skills = listInstalledSkills(this.config.installMode === 'project');
     this.cursor = 0;
+    this.checked = new Array(this.skills.length).fill(false);
     this.loading = false;
     this.cachedWidth = undefined;
   }
@@ -491,13 +493,18 @@ export class InstalledPanel {
       }
       return;
     }
+    if (matchesKey(data, Key.space) && this.skills.length > 0) {
+      if (this.cursor < this.checked.length) {
+        this.checked[this.cursor] = !this.checked[this.cursor];
+        this.cachedWidth = undefined;
+      }
+      return;
+    }
     if (matchesKey(data, 'u') && this.skills.length > 0) {
-      // Uninstall focused skill
       this.doUninstall();
       return;
     }
     if (matchesKey(data, 'U')) {
-      // Update all
       this.doUpdate();
       return;
     }
@@ -510,27 +517,62 @@ export class InstalledPanel {
   }
 
   private async doUninstall() {
-    if (this.cursor >= this.skills.length) return;
-    const skill = this.skills[this.cursor];
-    this.actionMsg = `Uninstalling ${skill.name}...`;
-    this.callbacks.onSetStatus(this.actionMsg);
-    this.cachedWidth = undefined;
-    this.callbacks.onRequestRender();
+    // Determine which skills to uninstall: checked items, or focused if none checked
+    const selectedIndices: number[] = [];
+    const hasChecked = this.checked.some(Boolean);
+    if (hasChecked) {
+      for (let i = 0; i < this.checked.length; i++) {
+        if (this.checked[i]) selectedIndices.push(i);
+      }
+    } else if (this.cursor < this.skills.length) {
+      selectedIndices.push(this.cursor);
+    }
 
-    try {
-      uninstallSkill(skill.name, this.config.installMode === 'project');
-      this.callbacks.onNotify(`Uninstalled ${skill.name}`, 'success');
-      this.refresh();
-    } catch (err: unknown) {
+    if (selectedIndices.length === 0) return;
+
+    const projectMode = this.config.installMode === 'project';
+    const uninstalled: string[] = [];
+    const failed: Array<{ name: string; error: string }> = [];
+
+    // Close the TUI panel — progress shown via status bar & notifications
+    this.callbacks.onSetStatus(`Uninstalling ${selectedIndices.length} skill(s)...`);
+    this.callbacks.onClose();
+
+    for (let i = 0; i < selectedIndices.length; i++) {
+      const skill = this.skills[selectedIndices[i]];
+      const stopSpinner = startSpinner(
+        this.callbacks.onSetStatus,
+        `Uninstalling ${skill.name} (${i + 1}/${selectedIndices.length})...`,
+      );
+
+      try {
+        const output = await uninstallSkillAsync(skill.name, projectMode);
+        stopSpinner();
+        uninstalled.push(skill.name);
+        console.log(`Uninstalled ${skill.name}:\n${output}`);
+      } catch (err: unknown) {
+        stopSpinner();
+        const message = err instanceof Error ? err.message : String(err);
+        failed.push({ name: skill.name, error: message });
+        console.error(`Failed to uninstall ${skill.name}: ${message}`);
+      }
+    }
+
+    this.callbacks.onClearStatus();
+
+    if (uninstalled.length > 0) {
+      this.callbacks.onNotify(`✓ Uninstalled: ${uninstalled.join(', ')}`, 'success');
+    }
+    if (failed.length > 0) {
       this.callbacks.onNotify(
-        `Failed: ${err instanceof Error ? err.message : String(err)}`,
+        `✗ Failed: ${failed.map((f) => `${f.name} (${f.error})`).join('; ')}`,
         'error',
       );
     }
+
     this.actionMsg = '';
-    this.callbacks.onClearStatus();
+    this.refresh(); // reloads skills + resets checked
     this.cachedWidth = undefined;
-    this.callbacks.onRequestRender();
   }
 
   private async doUpdate() {
@@ -600,10 +642,13 @@ export class InstalledPanel {
     for (let i = startOffset; i < endIndex; i++) {
       const s = this.skills[i];
       const isCursor = i === this.cursor;
+      const isChecked = this.checked[i];
+
+      const checkbox = isChecked ? t.fg('success', '✓') : t.fg('dim', '○');
       const cursorMarker = isCursor ? t.fg('accent', '▸') : ' ';
       const name = truncateToWidth(s.name, Math.floor(width * 0.4));
       lines.push(
-        ` ${cursorMarker} ${t.fg(isCursor ? 'text' : 'muted', name)} ${t.fg('dim', truncateToWidth(s.path, Math.max(10, width - 50)))}`,
+        ` ${cursorMarker} ${checkbox} ${t.fg(isCursor ? 'text' : 'muted', name)} ${t.fg('dim', truncateToWidth(s.path, Math.max(10, width - 50)))}`,
       );
     }
 
@@ -612,8 +657,13 @@ export class InstalledPanel {
     }
 
     lines.push('');
+
+    const count = this.checked.filter(Boolean).length;
+    if (count > 0) {
+      lines.push(`  ${t.fg('success', `${count} selected — u to uninstall`)}`);
+    }
     lines.push(
-      `  ${t.fg('dim', '↑↓ navigate  |  u uninstall  |  U update all  |  r refresh  |  ← → or Tab tabs')}`,
+      `  ${t.fg('dim', '↑↓ navigate  |  Space toggle  |  u uninstall checked or focused  |  U update all  |  r refresh  |  ← → or Tab tabs')}`,
     );
 
     this.cachedWidth = width;
