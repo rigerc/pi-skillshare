@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.1.6](https://github.com/rigerc/pi-skillshare/compare/pi-skillshare-v0.1.5...pi-skillshare-v0.1.6) (2026-05-10)
+
+
+### Features
+
+* add 'Check for skillshare updates on start' setting ([6783987](https://github.com/rigerc/pi-skillshare/commit/6783987f381da62f72980838437bd2aa9992ae24))
+* add /skillshare-analyze command ([78a196f](https://github.com/rigerc/pi-skillshare/commit/78a196f359ebd4e732471b6ac8cf53d76450c347))
+* close search panel when installation starts ([7172211](https://github.com/rigerc/pi-skillshare/commit/7172211f0e7b930820ea5ce32f0c5d69fe3be9c9))
+* show focused search result description in TUI ([f2dd54b](https://github.com/rigerc/pi-skillshare/commit/f2dd54b96b7de82cd06e7bc155b50ad3239c32e8))
+
+
+### Bug Fixes
+
+* address error handling gaps found in audit ([5728ed5](https://github.com/rigerc/pi-skillshare/commit/5728ed5501b8a42d8dc116f55e4e84a2d0cfffb2))
+* always open tabbed TUI for /skillshare regardless of query ([8d5692f](https://github.com/rigerc/pi-skillshare/commit/8d5692f3df4bb4f264c9e2b9873a40b8ec9b025c))
+* close UI on uninstall, add spinner, fix --force flag ([10d220d](https://github.com/rigerc/pi-skillshare/commit/10d220d983195408015eff412b65f0fb3ef4ba9b))
+* defer TUI open until search results are ready ([81e4d56](https://github.com/rigerc/pi-skillshare/commit/81e4d564bb6ba8fdf8fc8a19a365693b96f4a4ea))
+* make scroll indicators dynamic and stable ([d97a77a](https://github.com/rigerc/pi-skillshare/commit/d97a77ae07b124aa702ce378d00d9efe77f0ee71))
+* reserve fixed height for description to prevent layout jumps ([bcf1b75](https://github.com/rigerc/pi-skillshare/commit/bcf1b754c318078160cbdff624870537c6beea93))
+* restore spinner during pre-TUI search ([b41ab68](https://github.com/rigerc/pi-skillshare/commit/b41ab685fd3b8357d28dd864c7e881bd7be1c6cb))
+* use --json for install/uninstall, suppress raw CLI output ([82f580d](https://github.com/rigerc/pi-skillshare/commit/82f580d098b160b45da78f6c166505a67d24020b))
+
 ## [0.1.5](https://github.com/rigerc/pi-skillshare/compare/pi-skillshare-v0.1.4...pi-skillshare-v0.1.5) (2026-05-10)
 
 
