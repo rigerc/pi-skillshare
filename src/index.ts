@@ -10,8 +10,14 @@
 
 import type { ExtensionAPI, ExtensionCommandContext } from '@earendil-works/pi-coding-agent';
 import { matchesKey, Key } from '@earendil-works/pi-tui';
-import type { SkillshareConfig } from './utils';
-import { DEFAULT_CONFIG, isSkillshareAvailable, detectProjectMode, resolveScope } from './utils';
+import type { SkillshareConfig, SkillSearchResult } from './utils';
+import {
+  DEFAULT_CONFIG,
+  isSkillshareAvailable,
+  detectProjectMode,
+  resolveScope,
+  searchSkillsAsync,
+} from './utils';
 import {
   TabBar,
   SKILLSHARE_TABS,
@@ -75,6 +81,28 @@ export default function (pi: ExtensionAPI) {
 
       const initialQuery = args?.trim() || '';
 
+      // When a query is provided, run the search before opening the TUI
+      let prefetchedResults: SkillSearchResult[] | undefined;
+      if (initialQuery) {
+        ctx.ui.setStatus('skillshare', `Searching "${initialQuery}"...`);
+        try {
+          const results = await searchSkillsAsync(initialQuery, config.searchLimit, config.hubMode);
+          ctx.ui.setStatus('skillshare', '');
+          if (results.length === 0) {
+            ctx.ui.notify(`No results for "${initialQuery}"`, 'info');
+            return;
+          }
+          prefetchedResults = results;
+        } catch (err: unknown) {
+          ctx.ui.setStatus('skillshare', '');
+          ctx.ui.notify(
+            `Search failed: ${err instanceof Error ? err.message : String(err)}`,
+            'error',
+          );
+          return;
+        }
+      }
+
       // Shared callbacks — onClose is wired to done() inside custom()
       const callbacks: SearchPanelCallbacks = {
         onNotify: (msg, type) => ctx.ui.notify(msg, type),
@@ -102,6 +130,7 @@ export default function (pi: ExtensionAPI) {
             onRequestRender: () => _tui.requestRender(),
           },
           initialQuery,
+          prefetchedResults,
         );
 
         const installedPanel = new InstalledPanel(config, theme, {

@@ -142,6 +142,7 @@ export class SearchPanel {
     theme: Theme,
     callbacks: SearchPanelCallbacks,
     initialQuery: string,
+    initialResults?: SkillSearchResult[],
   ) {
     this.config = config;
     this.theme = theme;
@@ -151,8 +152,11 @@ export class SearchPanel {
       listInstalledSkills(config.installMode === 'project').map((s) => s.name),
     );
 
-    // Auto-search if query provided
-    if (this.query) {
+    if (initialResults !== undefined) {
+      this.results = initialResults;
+      this.originalResults = [...initialResults];
+      this.checked = new Array(initialResults.length).fill(false);
+    } else if (this.query) {
       this.runSearch();
     }
   }
