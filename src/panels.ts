@@ -405,28 +405,28 @@ export class SearchPanel {
       lines.push(`  ${t.fg('dim', `… ${this.results.length - visibleCount} more`)}`);
     }
 
-    // Description for focused item
+    // Fixed-height description block — always 3 lines so the footer doesn't jump
+    const DESC_LINES = 2;
+    const descLines: string[] = [];
     if (this.cursor >= 0 && this.cursor < this.results.length) {
       const focused = this.results[this.cursor];
       if (focused.Description) {
-        lines.push('');
-        const desc = focused.Description;
         const maxWidth = Math.max(40, width - 8);
-        // Word-wrap the description
         let line = '';
-        for (const word of desc.split(' ')) {
+        for (const word of focused.Description.split(' ')) {
           if (line.length + word.length + 1 > maxWidth) {
-            lines.push(`  ${t.fg('dim', line)}`);
+            descLines.push(`  ${t.fg('dim', line)}`);
             line = word;
+            if (descLines.length >= DESC_LINES) break;
           } else {
             line = line ? line + ' ' + word : word;
           }
         }
-        if (line) lines.push(`  ${t.fg('dim', line)}`);
+        if (line && descLines.length < DESC_LINES) descLines.push(`  ${t.fg('dim', line)}`);
       }
     }
-
-    lines.push('');
+    while (descLines.length < DESC_LINES) descLines.push('');
+    lines.push('', ...descLines, '');
 
     // Status + hints
     const count = this.checked.filter(Boolean).length;
