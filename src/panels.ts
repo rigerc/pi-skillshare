@@ -14,7 +14,7 @@ import { matchesKey, Key, truncateToWidth } from '@earendil-works/pi-tui';
 import type { SkillSearchResult, InstalledSkill, SkillshareConfig } from './utils';
 import {
   searchSkillsAsync,
-  installSkill,
+  installSkillAsync,
   listInstalledSkills,
   syncSkills,
   updateSkills,
@@ -269,20 +269,17 @@ export class SearchPanel {
 
     const installed: string[] = [];
     const failed: Array<{ name: string; error: string }> = [];
-    let lastRender = Date.now();
 
     for (let i = 0; i < selected.length; i++) {
       const skill = this.results[selected[i]];
       this.callbacks.onSetStatus(`Installing ${skill.Name} (${i + 1}/${selected.length})...`);
 
-      // Throttle renders for performance
-      if (Date.now() - lastRender > 100) {
-        this.callbacks.onRequestRender();
-        lastRender = Date.now();
-      }
+      // Yield to event loop so the TUI can render status updates
+      await new Promise((r) => setTimeout(r, 0));
+      this.callbacks.onRequestRender();
 
       try {
-        const output = installSkill(skill.Source, projectMode);
+        const output = await installSkillAsync(skill.Source, projectMode);
         installed.push(skill.Name);
         console.log(`Installed ${skill.Name}:\n${output}`);
       } catch (err: unknown) {

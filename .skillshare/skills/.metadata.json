@@ -101,6 +101,19 @@
         "triage-labels.md": "sha256:4f53c9b40ce2651e3611aa090eaedbd6dbc9b71ef8c5f7e65eac0d8263190d0d"
       }
     },
+    "taskfile-busla-booking-platform": {
+      "source": "github.com/majiayu000/claude-skill-registry/skills/testing/taskfile-busla-booking-platform",
+      "type": "github-subdir",
+      "installed_at": "2026-05-10T17:08:40.728897561+02:00",
+      "repo_url": "https://github.com/majiayu000/claude-skill-registry.git",
+      "subdir": "skills/testing/taskfile-busla-booking-platform",
+      "version": "fc98f4ec9",
+      "tree_hash": "7c96a07b00c2647f40418d62636cbc695f6d95ba",
+      "file_hashes": {
+        "SKILL.md": "sha256:dfd7348bfb91b8cba097b49de9e7bcd9aaa4311fd274afe00a1f0ffcbf355b96",
+        "metadata.json": "sha256:1275b7fd23dd8812b659a3f28439f1a58fadb2e7b42573371d4a9fa0c0447272"
+      }
+    },
     "td-task-management": {
       "source": "github.com/marcus/td/td-task-management",
       "type": "github-subdir",
