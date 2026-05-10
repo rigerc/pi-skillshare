@@ -872,6 +872,13 @@ export class SettingsPanel {
           return idx >= 0 ? idx : 1; // default to 20
         })(),
       },
+      {
+        id: 'checkUpdatesOnStart',
+        label: 'Check for updates on start',
+        detail: 'Run skillshare doctor on startup to detect new CLI versions',
+        values: ['Enabled', 'Disabled'],
+        currentIndex: this.config.checkUpdatesOnStart === false ? 1 : 0,
+      },
     ];
   }
 
@@ -919,6 +926,9 @@ export class SettingsPanel {
         break;
       case 'searchLimit':
         newConfig.searchLimit = [10, 20, 30, 50][setting.currentIndex] ?? 20;
+        break;
+      case 'checkUpdatesOnStart':
+        newConfig.checkUpdatesOnStart = setting.currentIndex === 0;
         break;
     }
 

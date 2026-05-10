@@ -41,6 +41,7 @@ export interface SkillshareConfig {
   installMode: 'project' | 'global';
   operationScope: 'project' | 'global';
   searchLimit: number;
+  checkUpdatesOnStart: boolean;
 }
 
 export const DEFAULT_CONFIG: SkillshareConfig = {
@@ -48,6 +49,7 @@ export const DEFAULT_CONFIG: SkillshareConfig = {
   installMode: 'project',
   operationScope: 'project',
   searchLimit: 20,
+  checkUpdatesOnStart: true,
 };
 
 // ---------------------------------------------------------------------------
@@ -105,6 +107,23 @@ export interface AnalyzeTarget {
 
 export interface AnalyzeOutput {
   targets: AnalyzeTarget[];
+}
+
+// ---------------------------------------------------------------------------
+// Doctor types
+// ---------------------------------------------------------------------------
+
+export interface DoctorCheck {
+  name: string;
+  status: 'pass' | 'warning' | 'error' | 'info';
+  message: string;
+  details?: string[];
+}
+
+export interface DoctorResult {
+  checks: DoctorCheck[];
+  summary: { total: number; pass: number; warnings: number; errors: number; info: number };
+  version: { current: string; latest: string; update_available: boolean };
 }
 
 // ---------------------------------------------------------------------------
@@ -572,6 +591,20 @@ export function runDoctor(): string {
     }).trim();
   } catch (err: unknown) {
     throw toSkillshareError(err);
+  }
+}
+
+export function runDoctorJson(projectMode: boolean): DoctorResult | null {
+  try {
+    const flag = projectMode ? '-p' : '-g';
+    const stdout = execFileSync('skillshare', ['doctor', flag, '--json'], {
+      encoding: 'utf-8',
+      timeout: 30_000,
+      maxBuffer: 10 * 1024 * 1024,
+    }).trim();
+    return JSON.parse(stdout) as DoctorResult;
+  } catch {
+    return null;
   }
 }
 

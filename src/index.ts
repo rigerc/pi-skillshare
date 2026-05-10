@@ -8,6 +8,7 @@
  *   /skillshare-update       – one-shot update
  */
 
+import fs from 'node:fs';
 import type { ExtensionAPI, ExtensionCommandContext } from '@earendil-works/pi-coding-agent';
 import { matchesKey, Key } from '@earendil-works/pi-tui';
 import type { SkillshareConfig, SkillSearchResult } from './utils';
@@ -19,6 +20,7 @@ import {
   searchSkillsAsync,
   startSpinner,
   analyzeSkills,
+  runDoctorJson,
 } from './utils';
 import {
   TabBar,
@@ -34,6 +36,9 @@ import {
 // ---------------------------------------------------------------------------
 // State
 // ---------------------------------------------------------------------------
+
+const UPDATE_CHECK_COOLDOWN_MS = 60_000;
+const UPDATE_CHECK_STAMP = '/tmp/.skillshare-startup-check';
 
 /** Current configuration, loaded from session or defaults. */
 let config: SkillshareConfig = { ...DEFAULT_CONFIG };
@@ -53,6 +58,31 @@ export default function (pi: ExtensionAPI) {
         const saved = entry.data as SkillshareConfig | undefined;
         if (saved?.hubMode && saved?.installMode && saved?.searchLimit) {
           config = { ...saved };
+        }
+      }
+    }
+
+    if (config.checkUpdatesOnStart) {
+      let skip = false;
+      try {
+        const { mtimeMs } = fs.statSync(UPDATE_CHECK_STAMP);
+        if (Date.now() - mtimeMs < UPDATE_CHECK_COOLDOWN_MS) skip = true;
+      } catch {
+        /* file absent — first run */
+      }
+
+      if (!skip) {
+        try {
+          fs.writeFileSync(UPDATE_CHECK_STAMP, '');
+        } catch {
+          /* ignore */
+        }
+        const projectMode = config.operationScope === 'project';
+        const result = runDoctorJson(projectMode);
+        if (result?.version?.update_available) {
+          process.stdout.write(
+            `\n[skillshare] Update available: ${result.version.current} → ${result.version.latest}. Run: skillshare upgrade\n\n`,
+          );
         }
       }
     }
