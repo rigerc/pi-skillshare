@@ -18,6 +18,7 @@ import {
   resolveScope,
   searchSkillsAsync,
   startSpinner,
+  analyzeSkills,
 } from './utils';
 import {
   TabBar,
@@ -427,6 +428,96 @@ export default function (pi: ExtensionAPI) {
           'error',
         );
       }
+    },
+  });
+
+  // ── /skillshare-analyze — Analyze token budget and lint issues ────
+
+  pi.registerCommand('skillshare-analyze', {
+    description:
+      'Analyze skill token usage and lint issues. ' + 'Usage: /skillshare-analyze [-p | -g]',
+    handler: async (args, ctx: ExtensionCommandContext) => {
+      if (!isSkillshareAvailable()) {
+        ctx.ui.notify(
+          'skillshare CLI not found. Install from https://github.com/runkids/skillshare',
+          'error',
+        );
+        return;
+      }
+
+      const projectMode = resolveScope(args, config) === 'project';
+      const stopSpinner = startSpinner(
+        (msg) => ctx.ui.setStatus('skillshare', msg),
+        'Analyzing skills...',
+      );
+
+      let result;
+      try {
+        result = analyzeSkills(projectMode);
+        stopSpinner();
+        ctx.ui.setStatus('skillshare', '');
+      } catch (err: unknown) {
+        stopSpinner();
+        ctx.ui.setStatus('skillshare', '');
+        ctx.ui.notify(
+          `Analyze failed: ${err instanceof Error ? err.message : String(err)}`,
+          'error',
+        );
+        return;
+      }
+
+      if (result.targets.length === 0) {
+        ctx.ui.notify('No targets found — no skills installed', 'info');
+        return;
+      }
+
+      // Token budget per target
+      let tokenSummary = `${result.targets.length} target(s) analyzed\n`;
+      for (const t of result.targets) {
+        const always = t.always_loaded.estimated_tokens.toLocaleString();
+        const onDemand = t.on_demand_max.estimated_tokens.toLocaleString();
+        tokenSummary += `\n  ${t.name}: ${t.skill_count} skills  |  always loaded: ${always} tokens  |  on-demand max: ${onDemand} tokens`;
+      }
+      ctx.ui.notify(tokenSummary, 'info');
+
+      // Lint issues — deduplicated by skill name across targets
+      const seen = new Map<string, { rules: string[]; messages: string[] }>();
+      for (const t of result.targets) {
+        for (const skill of t.skills) {
+          if (!skill.lint_issues?.length) continue;
+          if (!seen.has(skill.name)) {
+            seen.set(skill.name, { rules: [], messages: [] });
+          }
+          const entry = seen.get(skill.name)!;
+          for (const issue of skill.lint_issues) {
+            if (!entry.rules.includes(issue.rule)) {
+              entry.rules.push(issue.rule);
+              entry.messages.push(`[${issue.severity}] ${issue.message}`);
+            }
+          }
+        }
+      }
+
+      if (seen.size === 0) {
+        ctx.ui.notify('No lint issues found', 'success');
+        return;
+      }
+
+      const MAX_SHOWN = 8;
+      let issuesSummary = `${seen.size} skill(s) with lint issues:`;
+      let shown = 0;
+      for (const [name, { messages }] of seen) {
+        if (shown >= MAX_SHOWN) break;
+        issuesSummary += `\n  • ${name}`;
+        for (const msg of messages) {
+          issuesSummary += `\n      ${msg}`;
+        }
+        shown++;
+      }
+      if (seen.size > MAX_SHOWN) {
+        issuesSummary += `\n  … and ${seen.size - MAX_SHOWN} more`;
+      }
+      ctx.ui.notify(issuesSummary, 'error');
     },
   });
 }

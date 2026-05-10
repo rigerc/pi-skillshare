@@ -76,6 +76,38 @@ export interface CheckOutput {
 }
 
 // ---------------------------------------------------------------------------
+// Analyze types
+// ---------------------------------------------------------------------------
+
+export interface AnalyzeLintIssue {
+  rule: string;
+  severity: string;
+  category: string;
+  message: string;
+}
+
+export interface AnalyzeSkillResult {
+  name: string;
+  description_chars: number;
+  description_tokens: number;
+  body_chars: number;
+  body_tokens: number;
+  lint_issues?: AnalyzeLintIssue[];
+}
+
+export interface AnalyzeTarget {
+  name: string;
+  skill_count: number;
+  always_loaded: { chars: number; estimated_tokens: number };
+  on_demand_max: { chars: number; estimated_tokens: number };
+  skills: AnalyzeSkillResult[];
+}
+
+export interface AnalyzeOutput {
+  targets: AnalyzeTarget[];
+}
+
+// ---------------------------------------------------------------------------
 // CLI helpers
 // ---------------------------------------------------------------------------
 
@@ -510,6 +542,22 @@ export function checkSkills(projectMode: boolean): CheckOutput {
     }).trim();
     if (!stdout) return { tracked_repos: [], skills: [] };
     return JSON.parse(stdout) as CheckOutput;
+  } catch (err: unknown) {
+    throw toSkillshareError(err);
+  }
+}
+
+export function analyzeSkills(projectMode: boolean): AnalyzeOutput {
+  const args = ['analyze', '--json'];
+  if (projectMode) args.push('-p');
+  try {
+    const stdout = execFileSync('skillshare', args, {
+      encoding: 'utf-8',
+      timeout: 60_000,
+      maxBuffer: 10 * 1024 * 1024,
+    }).trim();
+    if (!stdout) return { targets: [] };
+    return JSON.parse(stdout) as AnalyzeOutput;
   } catch (err: unknown) {
     throw toSkillshareError(err);
   }
