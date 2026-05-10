@@ -1,10 +1,34 @@
 {
   "version": 1,
   "entries": {
+    "glint": {
+      "source": "github.com/speakeasy-api/gram/.agents/skills/glint",
+      "type": "github-subdir",
+      "installed_at": "2026-05-10T17:27:14.999241825+02:00",
+      "repo_url": "https://github.com/speakeasy-api/gram.git",
+      "subdir": ".agents/skills/glint",
+      "version": "2c84295",
+      "tree_hash": "fd92e6ee1cd34fe44809308675f2982902a31e8d",
+      "file_hashes": {
+        "SKILL.md": "sha256:7aa8252d77c3f466ac94b8b4c791415b8ae76830ee03be752d01f6177b27f095"
+      }
+    },
+    "go-review": {
+      "source": "github.com/replicate/cog/.opencode/skills/go-review",
+      "type": "github-subdir",
+      "installed_at": "2026-05-10T17:23:03.750128217+02:00",
+      "repo_url": "https://github.com/replicate/cog.git",
+      "subdir": ".opencode/skills/go-review",
+      "version": "14d224e",
+      "tree_hash": "463ac7894387612108b47465ea1efe2fa99eb017",
+      "file_hashes": {
+        "SKILL.md": "sha256:06581a2a8eefa2d70b04984e4291e7bf970c698ec630887727323c2a67af0c8b"
+      }
+    },
     "grill-me": {
       "source": "github.com/mattpocock/skills/skills/productivity/grill-me",
       "type": "github-subdir",
-      "installed_at": "2026-05-09T16:48:40.777340985+02:00",
+      "installed_at": "2026-05-10T18:14:42.903895344+02:00",
       "repo_url": "https://github.com/mattpocock/skills.git",
       "subdir": "skills/productivity/grill-me",
       "version": "733d312",
@@ -40,6 +64,24 @@
         "INTERFACE-DESIGN.md": "sha256:678c3e34f1339015053212b3316bf0b676c70aa251050a0613667d4e755fb35e",
         "LANGUAGE.md": "sha256:6feca2140439c54a774749e8367f18350899ff69c777144ed2248cd4407949fa",
         "SKILL.md": "sha256:9e9b617b1c70d390e37dbfd1c031c11b3de850e2e3d01c4a2c2888bdb386a247"
+      }
+    },
+    "kagent-dev": {
+      "source": "github.com/kagent-dev/kagent/.claude/skills/kagent-dev",
+      "type": "github-subdir",
+      "installed_at": "2026-05-10T17:23:11.523005453+02:00",
+      "repo_url": "https://github.com/kagent-dev/kagent.git",
+      "subdir": ".claude/skills/kagent-dev",
+      "version": "8a94dfc",
+      "tree_hash": "4d281a427d0ee60573ae65b7c141873541893f68",
+      "file_hashes": {
+        "SKILL.md": "sha256:46e3e109e24fac210187d059da5472f0fd3bd8a0043b260a4a162e570b560d19",
+        "evals/evals.json": "sha256:ee26ab91e8a913d1ed7b842e541b620ce5bc6016d8206626ca4a7170c6ad6d96",
+        "references/ci-failures.md": "sha256:75063b8a9d28159440470ed74f9c691487cd58a821e689a375d6692602a10863",
+        "references/crd-workflow-detailed.md": "sha256:5713f72a5e7221b8237b92cd17e287c41f23ccf05365ae3fb590162cc3a5725d",
+        "references/database-migrations.md": "sha256:fe8e80479a0b0e2f6200c35c308e3f80b3c3399784f1ddd2dcbba2e0b94b260c",
+        "references/e2e-debugging.md": "sha256:8a4c7d16c5a7a541c40c088fd2305318a31775e2ba42da256ca95f2358f4d8ef",
+        "references/translator-guide.md": "sha256:8d6c0d72ea831ec92eb39f6608fd5756d9a9d97db4846c850008f324f2924ac9"
       }
     },
     "publish-npm-package": {
@@ -82,6 +124,18 @@
       "file_hashes": {
         "SKILL.md": "sha256:05eff4956edcd032df7e61304f2d6c4a9a71512892431ba6a0493695cf290073",
         "metadata.json": "sha256:98b687998bfa0f81680b355469dddbc4d0c589a0a7d46d6267994eff9b973f39"
+      }
+    },
+    "resolve-backport": {
+      "source": "github.com/vitessio/vitess/.agents/skills/resolve-backport",
+      "type": "github-subdir",
+      "installed_at": "2026-05-10T17:23:14.039525694+02:00",
+      "repo_url": "https://github.com/vitessio/vitess.git",
+      "subdir": ".agents/skills/resolve-backport",
+      "version": "85660db",
+      "tree_hash": "37f4605de4cfd5e253b732d67c3fdff24a5ae96c",
+      "file_hashes": {
+        "SKILL.md": "sha256:3d0ab3d9ef572a9c85fd6e6d0830fedd721ac59e679338654f596a8b5624fce3"
       }
     },
     "setup-matt-pocock-skills": {

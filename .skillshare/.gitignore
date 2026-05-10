@@ -2,7 +2,6 @@
 logs/
 trash/
 skills/td-task-management/
-skills/grill-me/
 skills/grill-with-docs/
 skills/improve-codebase-architecture/
 skills/setup-matt-pocock-skills/
@@ -18,4 +17,9 @@ skills/release-please-development/
 skills/skill-finder/
 skills/skills-search/
 skills/taskfile-busla-booking-platform/
+skills/go-review/
+skills/kagent-dev/
+skills/resolve-backport/
+skills/glint/
+skills/grill-me/
 # END SKILLSHARE MANAGED
