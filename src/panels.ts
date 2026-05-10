@@ -401,8 +401,11 @@ export class SearchPanel {
       );
     }
 
-    if (this.results.length > visibleCount) {
-      lines.push(`  ${t.fg('dim', `… ${this.results.length - visibleCount} more`)}`);
+    {
+      const above = startOffset > 0 ? `↑ ${startOffset}` : '';
+      const below = endIndex < this.results.length ? `↓ ${this.results.length - endIndex}` : '';
+      const more = [above, below].filter(Boolean).join('  ');
+      lines.push(more ? `  ${t.fg('dim', more)}` : '');
     }
 
     // Fixed-height description block — always 3 lines so the footer doesn't jump
@@ -656,8 +659,11 @@ export class InstalledPanel {
       );
     }
 
-    if (this.skills.length > visibleCount) {
-      lines.push(`  ${t.fg('dim', `… ${this.skills.length - visibleCount} more`)}`);
+    {
+      const above = startOffset > 0 ? `↑ ${startOffset}` : '';
+      const below = endIndex < this.skills.length ? `↓ ${this.skills.length - endIndex}` : '';
+      const more = [above, below].filter(Boolean).join('  ');
+      lines.push(more ? `  ${t.fg('dim', more)}` : '');
     }
 
     lines.push('');
