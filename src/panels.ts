@@ -401,6 +401,27 @@ export class SearchPanel {
       lines.push(`  ${t.fg('dim', `… ${this.results.length - visibleCount} more`)}`);
     }
 
+    // Description for focused item
+    if (this.cursor >= 0 && this.cursor < this.results.length) {
+      const focused = this.results[this.cursor];
+      if (focused.Description) {
+        lines.push('');
+        const desc = focused.Description;
+        const maxWidth = Math.max(40, width - 8);
+        // Word-wrap the description
+        let line = '';
+        for (const word of desc.split(' ')) {
+          if (line.length + word.length + 1 > maxWidth) {
+            lines.push(`  ${t.fg('dim', line)}`);
+            line = word;
+          } else {
+            line = line ? line + ' ' + word : word;
+          }
+        }
+        if (line) lines.push(`  ${t.fg('dim', line)}`);
+      }
+    }
+
     lines.push('');
 
     // Status + hints
