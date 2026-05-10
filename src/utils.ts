@@ -400,7 +400,8 @@ export function listInstalledSkills(projectMode: boolean): InstalledSkill[] {
         name: d.name,
         path: path.join(baseDir, d.name),
       }));
-  } catch {
+  } catch (err) {
+    console.error('[skillshare] listInstalledSkills failed:', err);
     return [];
   }
 }
@@ -526,8 +527,10 @@ export function openUI(cwd: string): { url: string } {
   });
   uiProcess.unref();
 
-  // Track exit to clean up reference
   uiProcess.on('exit', () => {
+    uiProcess = null;
+  });
+  uiProcess.on('error', () => {
     uiProcess = null;
   });
 

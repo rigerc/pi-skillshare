@@ -157,7 +157,7 @@ export class SearchPanel {
       this.originalResults = [...initialResults];
       this.checked = new Array(initialResults.length).fill(false);
     } else if (this.query) {
-      this.runSearch();
+      void this.runSearch();
     }
   }
 
@@ -165,7 +165,7 @@ export class SearchPanel {
     if (this.searching) return;
 
     if (matchesKey(data, Key.enter) && this.results.length > 0) {
-      this.installSelected();
+      void this.installSelected();
       return;
     }
 
@@ -508,11 +508,11 @@ export class InstalledPanel {
       return;
     }
     if (matchesKey(data, 'u') && this.skills.length > 0) {
-      this.doUninstall();
+      void this.doUninstall();
       return;
     }
     if (matchesKey(data, 'U')) {
-      this.doUpdate();
+      void this.doUpdate();
       return;
     }
     if (matchesKey(data, 'r')) {
@@ -707,11 +707,11 @@ export class StatusPanel {
 
   handleInput(data: string) {
     if (matchesKey(data, 's')) {
-      this.doAction('sync');
+      void this.doAction('sync');
     } else if (matchesKey(data, 'u')) {
-      this.doAction('update');
+      void this.doAction('update');
     } else if (matchesKey(data, 'd')) {
-      this.doAction('doctor');
+      void this.doAction('doctor');
     }
   }
 
