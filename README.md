@@ -25,7 +25,7 @@ pi install ./pi-skillshare
 | Command | Description |
 |---------|-------------|
 | `/skillshare [query]` | Tabbed TUI: search, installed skills, and status |
-| `/skillshare-settings` | Configure defaults (hub mode, install target, check scope, search limit) |
+| `/skillshare-settings` | Configure defaults (hub mode, install target, check scope, search limit, update check) |
 | `/skillshare-sync [-p \| -g]` | Sync installed skills to configured targets |
 | `/skillshare-update [-p \| -g]` | Check for updates, confirm, then apply them |
 | `/skillshare-ui` | Launch the skillshare web UI in a browser |
@@ -67,8 +67,11 @@ pi install ./pi-skillshare
 | Install target | Global / Project | Project | Where `skillshare install` puts new skills |
 | Check/update scope | Global / Project | Project | Scope for `check`, `update`, and `sync` |
 | Search result limit | 10 / 20 / 30 / 50 | 20 | Max results per search query |
+| Check for updates on start | Enabled / Disabled | Enabled | Runs `skillshare doctor --json` on startup and prints a notice if a newer CLI version is available |
 
 All settings persist across sessions via `pi.appendEntry`.
+
+> **Startup update check** — the check runs at most once per 60 seconds across all sessions (including subagents), so it won't fire on every spawned agent during a single session.
 
 ## File structure
 
