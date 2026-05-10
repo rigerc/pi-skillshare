@@ -263,9 +263,9 @@ export class SearchPanel {
     const projectMode = this.config.installMode === 'project';
     const modeLabel = projectMode ? 'project' : 'global';
 
-    // We need to close the panel to show confirm dialogs
-    // Instead, we'll install sequentially with status feedback
+    // Close the TUI panel — install progress is shown via status bar & notifications
     this.callbacks.onSetStatus(`Installing ${selected.length} skill(s) to ${modeLabel}...`);
+    this.callbacks.onClose();
 
     const installed: string[] = [];
     const failed: Array<{ name: string; error: string }> = [];
