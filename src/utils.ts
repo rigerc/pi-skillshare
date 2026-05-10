@@ -12,6 +12,11 @@ import * as os from 'node:os';
 // Types
 // ---------------------------------------------------------------------------
 
+export interface InstallOutput {
+  skills: string[];
+  failed: string[];
+}
+
 export interface SkillSearchResult {
   Name: string;
   Description: string;
@@ -321,13 +326,28 @@ export function installSkill(source: string, projectMode: boolean): string {
 // ---------------------------------------------------------------------------
 
 /** Async version of installSkill — does not block the event loop. */
-export async function installSkillAsync(source: string, projectMode: boolean): Promise<string> {
-  const args = ['install', source];
+export async function installSkillAsync(
+  source: string,
+  projectMode: boolean,
+): Promise<InstallOutput> {
+  const args = ['install', source, '--json'];
   if (projectMode) args.push('-p');
   else args.push('-g');
   args.push('-y');
 
-  const tryExec = (extraArgs: string[] = []): Promise<string> => {
+  const parseOutput = (stdout: string): InstallOutput => {
+    try {
+      const parsed = JSON.parse(stdout.trim());
+      return {
+        skills: Array.isArray(parsed?.skills) ? (parsed.skills as string[]) : [],
+        failed: Array.isArray(parsed?.failed) ? (parsed.failed as string[]) : [],
+      };
+    } catch {
+      return { skills: [], failed: [] };
+    }
+  };
+
+  const tryExec = (extraArgs: string[] = []): Promise<InstallOutput> => {
     return new Promise((resolve, reject) => {
       execFile(
         'skillshare',
@@ -343,7 +363,7 @@ export async function installSkillAsync(source: string, projectMode: boolean): P
             (err as any).stderr = stderr ?? '';
             reject(err);
           } else {
-            resolve((stdout ?? '').trim());
+            resolve(parseOutput(stdout ?? ''));
           }
         },
       );
@@ -452,10 +472,10 @@ export function uninstallSkill(name: string, projectMode: boolean): string {
   }
 }
 
-export async function uninstallSkillAsync(name: string, projectMode: boolean): Promise<string> {
-  const args = ['uninstall', name, '--force'];
+export async function uninstallSkillAsync(name: string, projectMode: boolean): Promise<void> {
+  const args = ['uninstall', name, '--json', '--force'];
   if (projectMode) args.push('-p');
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     execFile(
       'skillshare',
       args,
@@ -470,7 +490,7 @@ export async function uninstallSkillAsync(name: string, projectMode: boolean): P
           (err as any).stderr = stderr ?? '';
           reject(err);
         } else {
-          resolve((stdout ?? '').trim());
+          resolve();
         }
       },
     );

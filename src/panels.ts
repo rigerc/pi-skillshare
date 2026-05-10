@@ -283,13 +283,15 @@ export class SearchPanel {
       this.callbacks.onRequestRender();
 
       try {
-        const output = await installSkillAsync(skill.Source, projectMode);
-        installed.push(skill.Name);
-        console.log(`Installed ${skill.Name}:\n${output}`);
+        const result = await installSkillAsync(skill.Source, projectMode);
+        const names = result.skills.length > 0 ? result.skills : [skill.Name];
+        installed.push(...names);
+        for (const f of result.failed) {
+          failed.push({ name: f, error: 'CLI reported failure' });
+        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         failed.push({ name: skill.Name, error: message });
-        console.error(`Failed to install ${skill.Name}: ${message}`);
       }
     }
 
@@ -553,15 +555,13 @@ export class InstalledPanel {
       );
 
       try {
-        const output = await uninstallSkillAsync(skill.name, projectMode);
+        await uninstallSkillAsync(skill.name, projectMode);
         stopSpinner();
         uninstalled.push(skill.name);
-        console.log(`Uninstalled ${skill.name}:\n${output}`);
       } catch (err: unknown) {
         stopSpinner();
         const message = err instanceof Error ? err.message : String(err);
         failed.push({ name: skill.name, error: message });
-        console.error(`Failed to uninstall ${skill.name}: ${message}`);
       }
     }
 
