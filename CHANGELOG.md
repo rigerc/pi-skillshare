@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/rigerc/pi-skillshare/compare/pi-skillshare-v0.1.4...pi-skillshare-v0.1.5) (2026-05-10)
+
+
+### Bug Fixes
+
+* make skill install async to prevent TUI freeze ([762a07f](https://github.com/rigerc/pi-skillshare/commit/762a07f515835570a1db8ed2ae1fff4302c034ca))
+
 ## [0.1.4](https://github.com/rigerc/pi-skillshare/compare/pi-skillshare-v0.1.3...pi-skillshare-v0.1.4) (2026-05-09)
 
 
