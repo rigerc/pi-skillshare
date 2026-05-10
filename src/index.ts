@@ -73,19 +73,7 @@ export default function (pi: ExtensionAPI) {
         return;
       }
 
-      // Prompt for query if none provided
-      let initialQuery = args?.trim() || '';
-      if (!initialQuery) {
-        const input = await ctx.ui.input(
-          'Search skillshare for:',
-          'Enter a keyword, skill name, or leave empty to browse popular skills',
-        );
-        if (input === undefined || input === null) {
-          ctx.ui.notify('Search cancelled', 'info');
-          return;
-        }
-        initialQuery = input;
-      }
+      const initialQuery = args?.trim() || '';
 
       // Shared callbacks — onClose is wired to done() inside custom()
       const callbacks: SearchPanelCallbacks = {
