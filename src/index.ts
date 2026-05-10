@@ -17,6 +17,7 @@ import {
   detectProjectMode,
   resolveScope,
   searchSkillsAsync,
+  startSpinner,
 } from './utils';
 import {
   TabBar,
@@ -84,9 +85,13 @@ export default function (pi: ExtensionAPI) {
       // When a query is provided, run the search before opening the TUI
       let prefetchedResults: SkillSearchResult[] | undefined;
       if (initialQuery) {
-        ctx.ui.setStatus('skillshare', `Searching "${initialQuery}"...`);
+        const stopSpinner = startSpinner(
+          (msg) => ctx.ui.setStatus('skillshare', msg),
+          `searching "${initialQuery}"...`,
+        );
         try {
           const results = await searchSkillsAsync(initialQuery, config.searchLimit, config.hubMode);
+          stopSpinner();
           ctx.ui.setStatus('skillshare', '');
           if (results.length === 0) {
             ctx.ui.notify(`No results for "${initialQuery}"`, 'info');
@@ -94,6 +99,7 @@ export default function (pi: ExtensionAPI) {
           }
           prefetchedResults = results;
         } catch (err: unknown) {
+          stopSpinner();
           ctx.ui.setStatus('skillshare', '');
           ctx.ui.notify(
             `Search failed: ${err instanceof Error ? err.message : String(err)}`,
